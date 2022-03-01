@@ -1,0 +1,10 @@
+GDP Data
+
+Retrieved from United Nations: https://unstats.un.org/unsd/snaama/Basic
+
+
+OECD Data
+
+Retrieved from Wikipedia: https://en.wikipedia.org/wiki/OECD (using https://wikitable2csv.ggor.de/)
+
+
