@@ -371,7 +371,6 @@ def plot_cat_by_cat_variable(df_inv, col_plot, col_x, col_bar, stacked=False, fi
             axs[i].legend(title=label_from_label_dict(col_bar), bbox_to_anchor=(1, 0.5), loc='center left')
         else:
             axs[i].legend().set_visible(False)
-    fig.suptitle(
-        f'"{label_from_label_dict(col_bar)}" by "{label_from_label_dict(col_x)}" for "{label_from_label_dict(col_plot)}" '
-        f'({overall_sum} overall articles)')
+    fig.suptitle(f'Number of articles for "{label_from_label_dict(col_bar)}" by "{label_from_label_dict(col_x)}" and '
+                 f'{label_from_label_dict(col_plot)}" ({overall_sum} overall articles)')
     plt.tight_layout()

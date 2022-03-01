@@ -1,9 +1,5 @@
-import matplotlib.pyplot as plt
-import pandas as pd
 import numpy as np
-import json
-
-from dateutil.relativedelta import relativedelta
+import pandas as pd
 
 
 def build_regression_dataframe(df_crawled):
@@ -48,16 +44,6 @@ def build_regression_dataframe(df_crawled):
 
 def filter_by_region_cat_code(df, gni_region, cat, code, n_largest=None, sorted=False):
     filtered = df[(df.gni_region == gni_region) & (df.cat == cat) & (df.code == code)]
-
-    if sorted is not None:
-        filtered = filtered.sort_values('views_7_sum', ascending=sorted)
-    if n_largest is not None:
-        filtered = filtered.nlargest(n_largest, 'views_7_sum')
-    return filtered
-
-
-def filter_by_class_cat_code(df, gni_class, cat, code, n_largest=None, sorted=False):
-    filtered = df[(df.gni_class == gni_class) & (df.cat == cat) & (df.code == code)]
 
     if sorted is not None:
         filtered = filtered.sort_values('views_7_sum', ascending=sorted)

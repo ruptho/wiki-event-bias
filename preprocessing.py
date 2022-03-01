@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from dateutil.relativedelta import relativedelta
+
 from bing_helper import load_lang_news_hits
 
 countries_version = {'en': ['United States'], 'it': ['Italy'], 'de': ['Germany'], 'es': ['Spain']}
