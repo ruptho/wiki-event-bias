@@ -347,31 +347,31 @@ def label_from_label_dict(label, label_dict=None):
     return label_dict[label] if label in label_dict else label
 
 
-def plot_cat_by_cat_variable(df_inv, col_x, col_y, col_bar, stacked=False, figsize=(15, 4), sharey=True,
-                             label_dict=None, relative=False):
+def plot_cat_by_cat_variable(df_inv, col_plot, col_x, col_bar, stacked=False, figsize=(15, 4), sharey=True,
+                             label_dict=None):
     df_plot = df_inv.copy()
     label_dict = default_label_dict if label_dict is None else label_dict
-    bar_plot_vals = df_inv[col_bar].unique()
+    bar_plot_vals = df_inv[col_plot].unique()
     fig, ax = plt.subplots(nrows=1, ncols=len(bar_plot_vals), figsize=figsize, sharey=sharey)
 
     overall_sum = 0
-    for i, c_bar in enumerate(bar_plot_vals):
+    for i, c_plot in enumerate(bar_plot_vals):
         axs = ax.flatten()
-        df_bar = df_plot[df_plot[col_bar] == c_bar].copy()
+        df_bar = df_plot[df_plot[col_plot] == c_plot].copy()
         df_bar.replace(label_dict, inplace=True)
-        col_vis_count = df_bar.groupby([col_y, col_x])['views_7_sum'].count().unstack().fillna(0)
+        col_vis_count = df_bar.groupby([col_x, col_bar])['views_7_sum'].count().unstack().fillna(0)
 
         # col_vis_count.index.rename(label_dict, inplace=True)
         col_vis_count.plot.bar(ax=axs[i], stacked=stacked)
         curr_count = int(col_vis_count.sum().sum())
         overall_sum += curr_count
-        axs[i].set_title(f'{c_bar}\n({curr_count} articles)')
-        axs[i].set_xlabel(label_from_label_dict(col_y))
+        axs[i].set_title(f'{label_from_label_dict(c_plot)}\n({curr_count} articles)')
+        axs[i].set_xlabel(label_from_label_dict(col_x))
         if i == len(bar_plot_vals) - 1:
-            axs[i].legend(title=label_from_label_dict(col_x), bbox_to_anchor=(1, 0.5), loc='center left')
+            axs[i].legend(title=label_from_label_dict(col_bar), bbox_to_anchor=(1, 0.5), loc='center left')
         else:
             axs[i].legend().set_visible(False)
     fig.suptitle(
-        f'"{label_from_label_dict(col_x)}" by "{label_from_label_dict(col_y)}" for "{label_from_label_dict(col_bar)}" '
+        f'"{label_from_label_dict(col_bar)}" by "{label_from_label_dict(col_x)}" for "{label_from_label_dict(col_plot)}" '
         f'({overall_sum} overall articles)')
     plt.tight_layout()
