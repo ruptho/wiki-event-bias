@@ -54,3 +54,8 @@ def filter_by_region_cat_code(df, gni_region, cat, code, n_largest=None, sorted=
 
 def load_preprocessed_events(path='events/new/processed_manually_with_wikiviews.csv'):
     return pd.read_csv(path)
+
+
+def compute_mean_and_variance(df: pd.DataFrame, group_col: str, val_col=('views_7_sum',)):
+    group_col = group_col[0] if len(group_col) == 1 else group_col
+    return df.groupby(group_col)[val_col].agg(['mean', 'var'])#({'mean': np.mean, 'var': np.var})

@@ -206,6 +206,43 @@ def load_views(path_views='viewsglobal/all_views_by_country.csv'):
     return df_views
 
 
+def categorize_views_for_df(df, views_col='views_baseline'):
+    '''
+    Original Wikipedia classification # our classification
+    1000000000-9999999999 #  >10^9
+    100000000-999999999 #  >10^8
+    10000000-99999999 # >10^7
+    1000000-9999999 # >10^6
+    100000-999999 # >10^5
+    10000-99999 # >10^4
+    1000-9999 # >10^3
+    100-999 # >10^2
+    0 # >=0
+    '''
+
+    def categorize_views(views):
+        if views > 10 ** 9:
+            return '>10^9'
+        if views > 10 ** 8:
+            return '>10^8'
+        if views > 10 ** 7:
+            return '>10^7'
+        if views > 10 ** 6:
+            return '>10^6'
+        if views > 10 ** 5:
+            return '>10^5'
+        if views > 10 ** 4:
+            return '>10^4'
+        if views > 10 ** 3:
+            return '>10^3'
+        if views > 10 ** 2:
+            return '>10^2'
+        return '>=0'
+
+    df['views_baseline_cat'] = df[views_col].apply(lambda t: categorize_views(t))
+    return df
+
+
 def compute_view_baseline(df_views, start_date_views='2015-05-01', months_before=5, func_agg=np.median):
     df_views.dropna(inplace=True)
     min_date = pd.to_datetime(start_date_views) + relativedelta(months=months_before)

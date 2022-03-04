@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib.lines import Line2D
 
 from steinkasserer.regression import get_vals_for_coefficients, extract_coefficient_values_and_stderr, \
@@ -374,3 +375,29 @@ def plot_cat_by_cat_variable(df_inv, col_plot, col_x, col_bar, stacked=False, fi
     fig.suptitle(f'Number of articles for "{label_from_label_dict(col_bar)}" by "{label_from_label_dict(col_x)}" and '
                  f'"{label_from_label_dict(col_plot)}" ({overall_sum} overall articles)')
     plt.tight_layout()
+
+
+def plot_pearson_residuals(df, model, exclude_n_outliers=0, col=None, ax=None, title='', log_scale=False):
+    if exclude_n_outliers > 0:
+        resid_outliers = model.resid_pearson.nlargest(exclude_n_outliers)
+        outlier_filter = ~model.resid_pearson.isin(resid_outliers)
+        x = df.loc[outlier_filter, col] if col is not None else model.fittedvalues[outlier_filter]
+        y = model.resid_pearson[outlier_filter]
+    else:
+        x = df.loc[:, col] if col is not None else model.fittedvalues
+        y = model.resid_pearson
+
+    if ax is None:
+        fig, ax = plt.subplots()
+
+    x = np.log(x) if log_scale else x
+    ax.scatter(x, y)
+    ax.set_title(title)
+    ax.set_xlabel('fitted values' + (': log(y)' if log_scale else ''))
+    ax.set_ylabel('pearson residuals')
+
+
+def compute_regression_outliers_from_residual(model, exclude_n_outliers=10):
+    resid_outliers = model.resid_pearson.nlargest(exclude_n_outliers)
+    outlier_filter = ~model.resid_pearson.isin(resid_outliers)
+    return resid_outliers, outlier_filter

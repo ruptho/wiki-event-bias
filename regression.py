@@ -2,6 +2,7 @@ import re
 
 import numpy as np
 import statsmodels.formula.api as smf
+import statsmodels.api as sm
 
 
 def fit_regression_and_rename_coeffs(df_reg, formula, robust=False):
@@ -11,9 +12,30 @@ def fit_regression_and_rename_coeffs(df_reg, formula, robust=False):
     return model.fit(cov_type='HC3') if robust else model.fit()
 
 
-def fit_regression_and_rename_coeffs_by_cat(df_reg, formula, cat_col='code'):
-    return {cat: fit_regression_and_rename_coeffs(df_reg[df_reg[cat_col] == cat], formula) for cat in
-            df_reg[cat_col].unique()}
+def fit_poisson_regression_and_rename_coeffs(df_reg, formula):
+    model = sm.GLM.from_formula(formula=formula, family=sm.families.Poisson(), data=df_reg)
+    model.data.xnames = [re.sub(r", Treatment\(reference='?[a-zA-Z& ]+'?\)\)", '', name.replace('C(', '')) for name in
+                         model.data.xnames]
+    return model.fit()
+
+
+def fit_negative_binomial_regression_and_rename_coeffs(df_reg, formula):
+    model = sm.GLM.from_formula(formula=formula, family=sm.families.NegativeBinomial(), data=df_reg)
+    model.data.xnames = [re.sub(r", Treatment\(reference='?[a-zA-Z& ]+'?\)\)", '', name.replace('C(', '')) for name in
+                         model.data.xnames]
+    return model.fit()
+
+
+def fit_regression_and_rename_coeffs_by_cat(df_reg, formula, cat_col='code', type='linear'):
+    if type == 'linear':
+        return {cat: fit_regression_and_rename_coeffs(df_reg[df_reg[cat_col] == cat], formula) for cat in
+                df_reg[cat_col].unique()}
+    elif type == 'poisson':
+        return {cat: fit_poisson_regression_and_rename_coeffs(df_reg[df_reg[cat_col] == cat], formula) for cat in
+                df_reg[cat_col].unique()}
+    elif type == 'nb':
+        return {cat: fit_negative_binomial_regression_and_rename_coeffs(df_reg[df_reg[cat_col] == cat], formula) for cat
+                in df_reg[cat_col].unique()}
 
 
 def write_reg_results(reg_results, filename, folder='.', method='csv'):
