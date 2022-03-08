@@ -397,6 +397,25 @@ def plot_pearson_residuals(df, model, exclude_n_outliers=0, col=None, ax=None, t
     ax.set_ylabel('pearson residuals')
 
 
+def plot_real_vs_fitted(df, model, outlier_filter=None, ax=None, title='', log_scale=False, exp_scale=False):
+    x = model.fittedvalues if outlier_filter is None else model.fittedvalues.loc[outlier_filter]
+    y = df.views_7_sum if outlier_filter is None else df.loc[outlier_filter, 'views_7_sum']
+
+    if log_scale:
+        x, y = np.log1p(x), np.log1p(y)
+    elif exp_scale:
+        x, y = np.expm1(x), np.expm1(y)
+    if ax is None:
+        fig, ax = plt.subplots()
+
+    ax.scatter(x, y)
+    ax.set_title(title)
+    ax.set_xlabel('fitted values' + (': log(y)' if log_scale else ''))
+    ax.set_ylabel('y (real values)')
+    ax.ticklabel_format(useOffset=False)
+    ax.ticklabel_format(style='plain')
+
+
 def compute_regression_outliers_from_residual(model, exclude_n_outliers=10):
     resid_outliers = model.resid_pearson.nlargest(exclude_n_outliers)
     outlier_filter = ~model.resid_pearson.isin(resid_outliers)
