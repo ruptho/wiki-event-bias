@@ -1,7 +1,10 @@
 import pandas as pd
 import requests as rq
+from mw.lib import title
 
 WM_API = 'https://wikimedia.org/api/rest_v1'
+MW_API = f"https://WIKI.wikipedia.org/w/api.php"
+
 headers = {"User-Agent": "th.ruprechter@gmail.com"}
 
 EDITOR_ACT_ALL = 'all-activity-levels'
@@ -93,3 +96,106 @@ def retrieve_pageviews_by_country_for_projects_and_months(langs, start_year: int
             results_month.append(
                 pd.concat([retrieve_pageviews_by_country_for_project(lang, year, month, access) for lang in langs]))
     return pd.concat(results_month).sort_values(['code', 'year', 'month', 'rank'])
+
+
+def retrieve_pageviews_per_article(article, lang, start=20140101, end=20220101, access=PV_ACCESS_ALL,
+                                   granularity=PV_GRANULARITY_DAY, agent=PV_AGENT_ALL):
+    url = f'{WM_API}/metrics/pageviews/per-article/{lang}.wikipedia.org/{access}/{agent}/{title.normalize(article)}/' \
+          f'{granularity}/{start}/{end}'
+
+    response = rq.get(url, headers=headers)
+    lang_result = {'date': [], 'views': []}
+    # print(url, response.text)
+    string = response.json()
+
+    if 'items' in string:
+        for res in string['items']:
+            lang_result['date'].append(pd.to_datetime(res['timestamp'][:-2], format='%Y%m%d'))
+            lang_result['views'].append(res['views'])
+
+    return pd.DataFrame(lang_result)
+
+
+def retrieve_pageviews_for_articles(articles, lang, start=20140101, end=20220101, access=PV_ACCESS_ALL,
+                                    granularity=PV_GRANULARITY_DAY, agent=PV_AGENT_ALL):
+    df_retrieved = []
+    for article in articles:
+        df_art = retrieve_pageviews_per_article(article, lang, start, end, access, granularity, agent)
+        df_art['article'] = article
+        df_art['norm_article'] = title.normalize(article)
+        df_retrieved.append(df_art)
+    return pd.concat(df_retrieved)
+
+
+def get_langlinks_for_country_articles_and_langs(country_articles, langs, name_synonyms={}, session=None):
+    if session is None:
+        session = rq.Session()
+    retrieved_data = []
+    retrieved_dfs = []
+    for country_article in country_articles:
+        api_path = MW_API.replace('WIKI', 'en')
+        params = {
+            "action": "query",
+            "titles": title.normalize(
+                country_article if country_article not in name_synonyms else name_synonyms[country_article]),
+            "prop": "langlinks",
+            "format": "json",
+            "lllimit": 500
+        }
+        response = session.get(url=api_path, params=params)
+        data = response.json()
+        retrieved_data.append(data)
+
+        for lang in langs:
+            result_dict = list(data['query']['pages'].values())[0]
+            if 'langlinks' in result_dict:
+                found = False
+                for langlinks in result_dict['langlinks']:
+                    if langlinks['lang'] == lang:
+                        retrieved_dfs.append([country_article, lang, langlinks['*']])
+                        found = True
+                        break
+                if not found:
+                    retrieved_dfs.append([country_article, lang, None])
+            else:
+                retrieved_dfs.append([country_article, lang, None])
+
+    return retrieved_data, pd.DataFrame(retrieved_dfs, columns=['en_article', 'lang', 'langlink'])
+
+
+def retrieve_pageviews_for_articles_across_langs(df_langlinks, start=20140101, end=20220101, combine_rows=True,
+                                                 access=PV_ACCESS_ALL, granularity=PV_GRANULARITY_DAY, agent=PV_AGENT_ALL):
+    # use english as baseline, then store row-wise
+    df_retrieved = []
+
+    for en_article, val_ll in df_langlinks.groupby('en_article'):
+        df_art = retrieve_pageviews_per_article(en_article, 'en', start, end, access, granularity, agent)
+        if combine_rows:
+            df_art.insert(0, 'en_article', en_article)
+            df_art.rename({'views': 'views_en'}, axis=1, inplace=True)
+        else:
+            df_art['code'] = 'en'
+            df_retrieved.append(df_art)
+
+        for lang, langlink in zip(val_ll['lang'], val_ll['langlink']):
+            df_lang = retrieve_pageviews_per_article(langlink, lang, start, end, access, granularity, agent)
+            print(lang, langlink)
+            if combine_rows:
+                df_lang.rename({'views': f'views_{lang}'}, axis=1, inplace=True)
+                df_art = df_art.merge(df_lang, on='date', how='left').fillna(0)
+            else:
+                df_lang['code'] = lang
+                df_retrieved.append(df_lang)
+        if combine_rows:
+            df_retrieved.append(df_art)
+    return pd.concat(df_retrieved)
+
+
+def retrieve_pageviews_for_articles_and_langs(articles, langs, start=20140101, end=20220101, access=PV_ACCESS_ALL,
+                                              granularity=PV_GRANULARITY_DAY, agent=PV_AGENT_ALL):
+    df_retrieved = []
+    for lang in langs:
+        df_lang = retrieve_pageviews_for_articles(articles, lang, start, end, access, granularity, agent)
+        df_lang['code'] = lang
+        df_retrieved.append(df_lang)
+    return pd.concat(df_retrieved)

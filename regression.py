@@ -1,8 +1,9 @@
 import re
 
 import numpy as np
-import statsmodels.formula.api as smf
 import statsmodels.api as sm
+import statsmodels.formula.api as smf
+from scipy.stats import chi2
 
 
 def fit_regression_and_rename_coeffs(df_reg, formula, robust=False):
@@ -213,3 +214,50 @@ def extract_coefficient_values_and_stderr_single_code(res, coeff_col, coeff_val,
 
 def is_param_categorical(coef_name, reg_results):
     return np.any([True if f'{coef_name}[T.' in param else False for param in reg_results.params.index])
+
+
+def estimate_alpha(df_regression, formula, est_method='IRLS'):
+    df_rel = df_regression.copy()
+    glm_p = smf.glm(formula=formula, data=df_rel, family=sm.families.Poisson()).fit(method=est_method)
+    df_rel['mu'] = glm_p.mu
+    df_rel['aux_dep'] = df_rel.apply(lambda x: ((x['views_7_sum'] - x['mu']) ** 2 - x['mu']) / x['mu'], axis=1)
+    ols_aux = smf.ols('aux_dep ~ mu - 1', data=df_rel).fit()
+    # print(ols_aux.summary())
+    alpha, pval = ols_aux.params['mu'], ols_aux.pvalues['mu']
+    print(f'Estimated alpha as {alpha} (p={pval})')
+    return glm_p, alpha, pval
+
+
+def fit_nb(df_regression, formula, est_method='IRLS', sig=0.05, alpha=1, offset_col=None):
+    nb_fit_alpha = smf.glm(formula=formula, data=df_regression, family=sm.families.NegativeBinomial(alpha=alpha),
+                           offset=None if offset_col is None else np.log1p(df_regression[offset_col])).fit(
+        method=est_method)
+    print(
+        f'Deviance: {nb_fit_alpha.deviance}|Null-deviance: {nb_fit_alpha.null_deviance}|Chi-sq ("good fit"): {chi2.ppf(1 - sig, df=nb_fit_alpha.df_resid)}')
+    # TODO: Log-Likelihood and deviance fits
+    # print(nb_fit_alpha.null_deviance - nb_fit_alpha.deviance, chi2.ppf(1 - sig, df=nb_fit_alpha.df_model))
+    print(f'H0: Model provides adequate fit for data: p={1 - chi2.cdf(nb_fit_alpha.deviance, nb_fit_alpha.df_resid)}')
+    sum_z_squared, degrees = np.sum(nb_fit_alpha.resid_pearson ** 2), nb_fit_alpha.df_resid
+    print('Overdispersion factor: ', sum_z_squared / degrees)
+    print('p-value of the observations: ', chi2.sf(sum_z_squared, degrees))
+    return nb_fit_alpha
+
+
+def fit_nb_with_estimated_alpha(df_regression, formula, est_method='IRLS', sig=0.05, offset_col=None):
+    # other method: lbgfs
+    glm_p, alpha, pval = estimate_alpha(df_regression, formula, est_method)
+    nb_fit_alpha = fit_nb(df_regression, formula, est_method, sig, alpha, offset_col)
+    return nb_fit_alpha
+
+
+def standardize_var(df, col):
+    return (df[col] - np.mean(df[col])) / np.std(df[col], ddof=1)
+
+
+def fit_nb_with_estimated_alpha_all_codes(codes, df_regression, formula, est_method='IRLS', sig=0.05, offset_col=None):
+    fit_dict = {}
+    for code in codes:
+        print(f' ================= Fitting {code} =================')
+        fit_dict[code] = fit_nb_with_estimated_alpha(df_regression[df_regression.code == code], formula, est_method,
+                                                     sig, offset_col)
+    return fit_dict
