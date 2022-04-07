@@ -216,9 +216,12 @@ def is_param_categorical(coef_name, reg_results):
     return np.any([True if f'{coef_name}[T.' in param else False for param in reg_results.params.index])
 
 
-def estimate_alpha(df_regression, formula, est_method='IRLS'):
+def estimate_alpha(df_regression, formula, est_method='IRLS', offset_col=None):
     df_rel = df_regression.copy()
-    glm_p = smf.glm(formula=formula, data=df_rel, family=sm.families.Poisson()).fit(method=est_method)
+    glm_p = smf.glm(formula=formula, data=df_rel, family=sm.families.Poisson(),
+                    offset=None if offset_col is None else np.log1p(df_regression[offset_col].values)).fit(
+        method=est_method, maxiter=1000)
+    #print(glm_p.summary())
     df_rel['mu'] = glm_p.mu
     df_rel['aux_dep'] = df_rel.apply(lambda x: ((x['views_7_sum'] - x['mu']) ** 2 - x['mu']) / x['mu'], axis=1)
     ols_aux = smf.ols('aux_dep ~ mu - 1', data=df_rel).fit()
@@ -230,22 +233,24 @@ def estimate_alpha(df_regression, formula, est_method='IRLS'):
 
 def fit_nb(df_regression, formula, est_method='IRLS', sig=0.05, alpha=1, offset_col=None):
     nb_fit_alpha = smf.glm(formula=formula, data=df_regression, family=sm.families.NegativeBinomial(alpha=alpha),
-                           offset=None if offset_col is None else np.log1p(df_regression[offset_col])).fit(
-        method=est_method)
+                           offset=None if offset_col is None else np.log1p(
+                               df_regression[offset_col].values)).fit(method=est_method, maxiter=1000)
     print(
         f'Deviance: {nb_fit_alpha.deviance}|Null-deviance: {nb_fit_alpha.null_deviance}|Chi-sq ("good fit"): {chi2.ppf(1 - sig, df=nb_fit_alpha.df_resid)}')
     # TODO: Log-Likelihood and deviance fits
+    # https://stats.stackexchange.com/a/113022
     # print(nb_fit_alpha.null_deviance - nb_fit_alpha.deviance, chi2.ppf(1 - sig, df=nb_fit_alpha.df_model))
+    print(f'Pseudo R² (1 - D/D_0) = {1 - nb_fit_alpha.deviance/nb_fit_alpha.null_deviance}')
     print(f'H0: Model provides adequate fit for data: p={1 - chi2.cdf(nb_fit_alpha.deviance, nb_fit_alpha.df_resid)}')
     sum_z_squared, degrees = np.sum(nb_fit_alpha.resid_pearson ** 2), nb_fit_alpha.df_resid
     print('Overdispersion factor: ', sum_z_squared / degrees)
-    print('p-value of the observations: ', chi2.sf(sum_z_squared, degrees))
+    # print('p-value of the observations: ', chi2.sf(sum_z_squared, degrees))
     return nb_fit_alpha
 
 
 def fit_nb_with_estimated_alpha(df_regression, formula, est_method='IRLS', sig=0.05, offset_col=None):
-    # other method: lbgfs
-    glm_p, alpha, pval = estimate_alpha(df_regression, formula, est_method)
+    # other method: lbfgs
+    glm_p, alpha, pval = estimate_alpha(df_regression, formula, est_method, offset_col)
     nb_fit_alpha = fit_nb(df_regression, formula, est_method, sig, alpha, offset_col)
     return nb_fit_alpha
 

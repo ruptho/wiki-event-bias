@@ -34,7 +34,6 @@ country_replace_dict = {
     'Syrian Arab Republic': 'Syria',
     'Venezuela, RB': 'Venezuela',
     'Venezuela, Bolivarian Republic of': 'Venezuela',
-
     'Yemen, Rep.': 'Yemen',
     'Taiwan, China': 'Taiwan',
     "Taiwan, Province of China": "Taiwan",
@@ -127,7 +126,7 @@ def check_counts_and_merge(df, df_news, dropna=True):
     print('it', len(df_crawled[df_crawled.code == 'it']))
     print('es', len(df_crawled[df_crawled.code == 'es']))
     print('en', len(df_crawled[df_crawled.code == 'en']))
-    df_crawled.replace(country_replace_dict, inplace=True)
+    df_crawled.country.replace(country_replace_dict, inplace=True)
 
     return df_crawled
 
@@ -138,7 +137,7 @@ def load_gni_class(df_crawled, gni_path='worldbank/gni_export.csv'):
     gni = gni.unstack(fill_value='..').reset_index().rename(
         {'level_0': 'year', 'name': 'country', 0: 'gni_class'}, axis=1)
     gni.year = gni.year.astype(int)
-    gni.replace(country_replace_dict, inplace=True)
+    gni.country.replace(country_replace_dict, inplace=True)
     df_crawled = df_crawled.merge(gni, on=['country', 'year'], how='left')
     df_missing = df_crawled[pd.isna(df_crawled.gni_class)]
     print('Lost Events for class:', len(df_missing))
@@ -155,6 +154,17 @@ def load_gni_region(df_crawled, gni_path='worldbank/economies_class.csv'):
     df_missing = df_crawled[pd.isna(df_crawled.gni_region)]
     print('Lost Events for region: ', len(df_missing))
     return df_crawled[~pd.isna(df_crawled.gni_region)], df_missing
+
+
+def load_gni_pc(df_crawled, gni_path='worldbank/gni_pc.csv'):
+    df_gni_pc = pd.read_csv(gni_path, sep=',')
+    df_gni_pc = df_gni_pc.replace(country_replace_dict).rename({'Country Name': 'country'}, axis=1).set_index('country')
+    df_gni_pc = df_gni_pc.unstack(fill_value='..').reset_index().rename({'level_0': 'year', 0: 'gni_pc'}, axis=1)
+    df_gni_pc.year = df_gni_pc.year.astype(int)
+    df_crawled = df_crawled.merge(df_gni_pc, on=['country', 'year'], how='left')
+    df_missing = df_crawled[pd.isna(df_crawled.gni_pc)]
+    print('Lost Events for gni_pc: ', len(df_missing))
+    return df_crawled[~pd.isna(df_crawled.gni_pc)], df_missing
 
 
 def load_population(df_crawled, pop_path='worldbank/population/population.csv'):
