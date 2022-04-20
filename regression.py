@@ -5,29 +5,30 @@ import statsmodels.api as sm
 import statsmodels.formula.api as smf
 from scipy.stats import chi2
 
+RE_TREATMENT_REF = r", Treatment\(reference=['\"]?[a-zA-Z& ]+['\"]?\)\)"
+
 
 def fit_regression_and_rename_coeffs(df_reg, formula, robust=False):
     model = smf.ols(formula=formula, data=df_reg)
-    model.data.xnames = [re.sub(r", Treatment\(reference='?[a-zA-Z& ]+'?\)\)", '', name.replace('C(', '')) for name in
-                         model.data.xnames]
+    model.data.xnames = [re.sub(RE_TREATMENT_REF, '', name.replace('C(', '')) for name in model.data.xnames]
     return model.fit(cov_type='HC3') if robust else model.fit()
 
 
 def fit_poisson_regression_and_rename_coeffs(df_reg, formula):
     model = sm.GLM.from_formula(formula=formula, family=sm.families.Poisson(), data=df_reg)
-    model.data.xnames = [re.sub(r", Treatment\(reference='?[a-zA-Z& ]+'?\)\)", '', name.replace('C(', '')) for name in
-                         model.data.xnames]
+    model.data.xnames = [re.sub(RE_TREATMENT_REF, '', name.replace('C(', '')) for name in model.data.xnames]
     return model.fit()
 
 
-def fit_negative_binomial_regression_and_rename_coeffs(df_reg, formula):
-    model = sm.GLM.from_formula(formula=formula, family=sm.families.NegativeBinomial(), data=df_reg)
-    model.data.xnames = [re.sub(r", Treatment\(reference='?[a-zA-Z& ]+'?\)\)", '', name.replace('C(', '')) for name in
-                         model.data.xnames]
-    return model.fit()
+def fit_negative_binomial_regression_and_rename_coeffs(df_reg, formula, alpha=1, offset_col=None, max_iter=1000,
+                                                       est_method='IRLS'):
+    model = smf.glm(formula=formula, data=df_reg, family=sm.families.NegativeBinomial(alpha=alpha),
+                    offset=None if offset_col is None else np.log1p(df_reg[offset_col].values))
+    model.data.xnames = [re.sub(RE_TREATMENT_REF, '', name.replace('C(', '')) for name in model.data.xnames]
+    return model.fit(method=est_method, maxiter=max_iter)
 
 
-def fit_regression_and_rename_coeffs_by_cat(df_reg, formula, cat_col='code', type='linear'):
+def fit_regression_and_rename_coeffs_by_cat(df_reg, formula, cat_col='code', type='linear', alpha=1):
     if type == 'linear':
         return {cat: fit_regression_and_rename_coeffs(df_reg[df_reg[cat_col] == cat], formula) for cat in
                 df_reg[cat_col].unique()}
@@ -35,7 +36,8 @@ def fit_regression_and_rename_coeffs_by_cat(df_reg, formula, cat_col='code', typ
         return {cat: fit_poisson_regression_and_rename_coeffs(df_reg[df_reg[cat_col] == cat], formula) for cat in
                 df_reg[cat_col].unique()}
     elif type == 'nb':
-        return {cat: fit_negative_binomial_regression_and_rename_coeffs(df_reg[df_reg[cat_col] == cat], formula) for cat
+        return {cat: fit_negative_binomial_regression_and_rename_coeffs(df_reg[df_reg[cat_col] == cat], formula, alpha)
+                for cat
                 in df_reg[cat_col].unique()}
 
 
@@ -248,9 +250,8 @@ def estimate_alpha(df_regression, formula, est_method='IRLS', offset_col=None, o
 
 
 def fit_nb(df_regression, formula, est_method='IRLS', sig=0.05, alpha=1, offset_col=None, output=True):
-    nb_fit_alpha = smf.glm(formula=formula, data=df_regression, family=sm.families.NegativeBinomial(alpha=alpha),
-                           offset=None if offset_col is None else np.log1p(
-                               df_regression[offset_col].values)).fit(method=est_method, maxiter=1000)
+    nb_fit_alpha = fit_negative_binomial_regression_and_rename_coeffs(df_regression, formula, alpha, offset_col, 1000,
+                                                                      est_method)
     if output:
         print(f'Deviance: {nb_fit_alpha.deviance:.2f} | Null-deviance: {nb_fit_alpha.null_deviance:.2f}\n'
               f'Pseudo ChiSq: {nb_fit_alpha.pearson_chi2:.2f} | '
@@ -283,8 +284,6 @@ def fit_nb_with_estimated_alpha_all_codes(codes, df_regression, formula, est_met
     fit_dict = {}
     for i, code in enumerate(codes):
         if output_lvl > 0:
-            if i > 0:
-                print()
             print(f'________________________________________________________________________________________________')
             print(f'================= Fitting {code} =================')
 
@@ -292,8 +291,6 @@ def fit_nb_with_estimated_alpha_all_codes(codes, df_regression, formula, est_met
                                                      sig, offset_col, output_lvl)
         if output_lvl > 1:
             print(f'--------------- Summary for {code} ---------------')
-            print(fit_dict[code].summary())
+            print(fit_dict[code].summary(alpha=sig * 2))
 
-        if output_lvl > 0:
-            print(f'________________________________________________________________________________________________')
     return fit_dict

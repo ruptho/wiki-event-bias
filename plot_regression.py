@@ -102,11 +102,11 @@ def plot_regression_results_interactions(df_reg, reg_results, coefficients, coef
 def plot_regression_results_from_dict(df_reg, dict_reg_results, coefficients, coef_baselines, label_sort=None,
                                       cat_dict=None, cat_in_coeff='code', title='', figsize=(8, 8), x_limits=(-2, 2),
                                       label_rename_dict=None, include_counts=False) -> plt.Figure:
-    n_coefficients = len(coefficients)
-    vals_coefficients, vals_cats = {coef: df_reg[coef].unique() for coef in coefficients}, df_reg[cat_in_coeff].unique()
+    first_reg_results = list(dict_reg_results.values())[0]  # all regressions were fit on the same formula regardless!
+    vals_coefficients, vals_cats = {coef: df_reg[coef].unique() for coef in coefficients if
+                                    is_param_categorical(coef, first_reg_results)}, df_reg[cat_in_coeff].unique()
     fig = plt.figure(figsize=figsize, constrained_layout=False)
-    # we assume that all regressions were fit on the same regardless!
-    first_reg_results = list(dict_reg_results.values())[0]
+
     rows_grid = sum(
         [(len(vals_coefficients[coef]) - 1 if is_param_categorical(coef, first_reg_results) else 1) for coef in
          coefficients])
@@ -114,34 +114,34 @@ def plot_regression_results_from_dict(df_reg, dict_reg_results, coefficients, co
     height_ratios = [
         single_box_ratio * (len(vals_coefficients[coef]) - 1 if is_param_categorical(coef, first_reg_results) else 1)
         for coef in coefficients]
-    outer_grid = fig.add_gridspec(n_coefficients, 1, wspace=0.0, hspace=0.0, height_ratios=height_ratios)
+    outer_grid = fig.add_gridspec(len(coefficients), 1, wspace=0.0, hspace=0.0, height_ratios=height_ratios)
     # #valsincoefficients
     grid_pos = outer_grid.get_grid_positions(fig)
     ylim_min, ylim_max, xlim_min, xlim_max = -1, 4, x_limits[0], x_limits[1]
 
     for i_coef, coef in enumerate(coefficients):
-        n_grids = len(vals_coefficients[coef]) - 1 if is_param_categorical(coef, first_reg_results) else 1
+        n_grids = len(vals_coefficients[coef]) if is_param_categorical(coef, first_reg_results) else 1
         coef_i_grid = outer_grid[i_coef].subgridspec(n_grids, 1, wspace=0.0, hspace=0.0)
         ax = None
         if is_param_categorical(coef, first_reg_results):
             coefficients_list = label_sort[coef] if label_sort is not None and coef in label_sort else \
                 vals_coefficients[coef]
+
             i_val = 0
             for val_coef in coefficients_list:
-                if val_coef == coef_baselines[coef]:
-                    continue
                 ax = setup_axis(fig, coef_i_grid, i_val, xlim_min, xlim_max, ylim_min, ylim_max,
                                 get_label_if_in_dict(val_coef, label_rename_dict),
-                                (i_coef < len(coefficients) - 1) or (i_val < len(coefficients_list) - 2))
+                                (i_coef < len(coefficients) - 1) or (i_val < len(coefficients_list) - 2),
+                                write_baseline=val_coef == coef_baselines[coef], do_color=((i_coef + 1) % 2) == 0)
                 # plot cats for codes
                 coef_combo_counts = {
                     cat: len(df_reg[(df_reg[coef] == val_coef) & (df_reg[cat_in_coeff] == cat)]) for
                     cat in cat_dict} if include_counts else None
 
+                # plot val and Cis in plot
                 plot_separate_cats_from_dict(dict_reg_results, coef, val_coef, cat_in_coeff, coef_baselines, i_coef,
                                              i_val, ax, cat_dict, title, None, None, 0, coef_combo_counts,
                                              extract_val_and_std_func=extract_coefficient_values_and_stderr_single_code_basic)
-                # plot val and Cis in plot
                 i_val += 1
 
             # set categorical visualization
@@ -153,7 +153,7 @@ def plot_regression_results_from_dict(df_reg, dict_reg_results, coefficients, co
         else:
             ax = setup_axis(fig, coef_i_grid, 0, xlim_min, xlim_max, ylim_min, ylim_max,
                             get_label_if_in_dict(coef, label_rename_dict),
-                            (i_coef < len(coefficients) - 1))
+                            (i_coef < len(coefficients) - 1), do_color=((i_coef + 1) % 2) == 0)
             # plot cats for codes
             coef_combo_counts = {key: len(df_reg[df_reg[cat_in_coeff] == key]) for key in
                                  dict_reg_results} if include_counts else None
@@ -261,7 +261,8 @@ def plot_cat(reg_results, i_cat, cat, base_coef, base_coef_val, cat_in_coeff, co
         x_coef_for_cat = 0
         stderr_coef_for_cat = 0.01
 
-    ci_lower, ci_upper = x_coef_for_cat - stderr_coef_for_cat, x_coef_for_cat + stderr_coef_for_cat
+    ci_lower, ci_upper = x_coef_for_cat - 1.959 * stderr_coef_for_cat, x_coef_for_cat + 1.959 * stderr_coef_for_cat
+    #print(x_coef_for_cat, stderr_coef_for_cat, cat, base_coef, ci_lower, ci_upper)
     significant = not ((ci_lower < 0) and (ci_upper > 0))
     ax.plot((ci_lower, ci_upper), (i_cat, i_cat), color=colorblind_tol[i_cat])
     ax.plot(x_coef_for_cat, i_cat, '.' if significant else 'x', color=colorblind_tol[i_cat],
@@ -312,7 +313,7 @@ def setup_axis(fig, grid, i_grid, xlim_min, xlim_max, ylim_min, ylim_max, label,
 
     if write_baseline:
         ax.text(xlim_min + 0.05, (ylim_min + ylim_max / 2), f'Baseline',
-                {'ha': 'left', 'va': 'center'}, fontsize='large', fontweight='bold')
+                {'ha': 'left', 'va': 'bottom'}, fontsize='large', fontweight='bold')
 
     if do_color:
         ax.set_facecolor('whitesmoke')
