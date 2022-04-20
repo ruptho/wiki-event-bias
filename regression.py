@@ -244,7 +244,7 @@ def estimate_alpha(df_regression, formula, est_method='IRLS', offset_col=None, o
     alpha, pval = ols_aux.params['mu'], ols_aux.pvalues['mu']
 
     if output > 0:
-        print(f'Estimated alpha as {alpha} (p={pval})')
+        print(f'Estimated alpha as {alpha:.2f} (p={pval:.4f})')
 
     return glm_p, alpha, pval
 
@@ -253,17 +253,18 @@ def fit_nb(df_regression, formula, est_method='IRLS', sig=0.05, alpha=1, offset_
     nb_fit_alpha = fit_negative_binomial_regression_and_rename_coeffs(df_regression, formula, alpha, offset_col, 1000,
                                                                       est_method)
     if output:
-        print(f'Deviance: {nb_fit_alpha.deviance:.2f} | Null-deviance: {nb_fit_alpha.null_deviance:.2f}\n'
+        print(f'Deviance: {nb_fit_alpha.deviance:.2f} | Null-deviance: {nb_fit_alpha.null_deviance:.2f} | '
+              f'Pseudo R² (1 - D/D_0) = {1 - nb_fit_alpha.deviance / nb_fit_alpha.null_deviance:.4f}\n'
               f'Pseudo ChiSq: {nb_fit_alpha.pearson_chi2:.2f} | '
-              f'Good-Fit-ChiSq): {chi2.ppf(1 - sig, df=nb_fit_alpha.df_resid):.2f}')
+              f'Good-Fit-ChiSq: {chi2.ppf(1 - sig, df=nb_fit_alpha.df_resid):.2f} | '
+              f'Residual DF: {nb_fit_alpha.df_resid}')
         # TODO: Log-Likelihood and deviance fits
         # https://stats.stackexchange.com/a/113022
         # print(nb_fit_alpha.null_deviance - nb_fit_alpha.deviance, chi2.ppf(1 - sig, df=nb_fit_alpha.df_model))
-        print(f'Pseudo R² (1 - D/D_0) = {1 - nb_fit_alpha.deviance / nb_fit_alpha.null_deviance:.4f}')
-        print(f'H0: Model provides adequate fit for data: '
+        print(f'H0 = Model provides adequate fit for data: '
               f'p={1 - chi2.cdf(nb_fit_alpha.deviance, nb_fit_alpha.df_resid):.2f}')
         sum_z_squared, degrees = np.sum(nb_fit_alpha.resid_pearson ** 2), nb_fit_alpha.df_resid
-        print(f'Overdispersion factor: {sum_z_squared / degrees:.4f}')
+        print(f'Overdispersion factor: {sum_z_squared / degrees:.2f}')
     # print('p-value of the observations: ', chi2.sf(sum_z_squared, degrees))
     return nb_fit_alpha
 

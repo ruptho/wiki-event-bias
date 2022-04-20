@@ -147,9 +147,10 @@ def plot_regression_results_from_dict(df_reg, dict_reg_results, coefficients, co
             # set categorical visualization
             bottom, top, left, right = grid_pos[0][i_coef], grid_pos[1][i_coef], grid_pos[2][0], grid_pos[3][0]
             y, x = ((bottom + top) / 2), 0.05
-            fig.text(x, y, coef, {'ha': 'center', 'va': 'center'}, rotation=90, fontsize='large')
-            fig.text(right + 0.05, y, f'Baseline:\n{coef_baselines[coef]}', {'ha': 'center', 'va': 'center'},
-                     rotation=90, fontsize='large')
+            fig.text(x, y, get_label_if_in_dict(coef, label_rename_dict), {'ha': 'center', 'va': 'center'}, rotation=90,
+                     fontsize='large')
+            # fig.text(right + 0.05, y, f'Baseline:\n{coef_baselines[coef]}', {'ha': 'center', 'va': 'center'},
+            #         rotation=90, fontsize='large')
         else:
             ax = setup_axis(fig, coef_i_grid, 0, xlim_min, xlim_max, ylim_min, ylim_max,
                             get_label_if_in_dict(coef, label_rename_dict),
@@ -262,7 +263,7 @@ def plot_cat(reg_results, i_cat, cat, base_coef, base_coef_val, cat_in_coeff, co
         stderr_coef_for_cat = 0.01
 
     ci_lower, ci_upper = x_coef_for_cat - 1.959 * stderr_coef_for_cat, x_coef_for_cat + 1.959 * stderr_coef_for_cat
-    #print(x_coef_for_cat, stderr_coef_for_cat, cat, base_coef, ci_lower, ci_upper)
+    # print(x_coef_for_cat, stderr_coef_for_cat, cat, base_coef, ci_lower, ci_upper)
     significant = not ((ci_lower < 0) and (ci_upper > 0))
     ax.plot((ci_lower, ci_upper), (i_cat, i_cat), color=colorblind_tol[i_cat])
     ax.plot(x_coef_for_cat, i_cat, '.' if significant else 'x', color=colorblind_tol[i_cat],
