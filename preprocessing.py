@@ -75,7 +75,7 @@ country_replace_dict = {
 }
 
 
-def load_events(path='events/new'):
+def load_events(path='events/new', drop_zeroes=False):
     df_de = pd.read_csv(f"{path}/events_dataframe_de.csv",
                         converters={'redirects': pd.eval, 'list_views_7_days': pd.eval})
     df_de['code'] = 'de'
@@ -90,14 +90,17 @@ def load_events(path='events/new'):
     df_es['code'] = 'es'
     df = pd.concat([df_en, df_de, df_it, df_es])
     df.cat.replace({np.nan: 'undefined', '': 'undefined'}, inplace=True)  # replace nan events
-    return df[df.views_7_sum > 0]
+    return df[df.views_7_sum > 0] if drop_zeroes else df
 
 
 def load_bing_results(path=f'scraping/results'):
-    files_en = [f'{path}/en_bingnews.json', f'{path}/en_bingnews_rest.json', f'{path}/en_bingnews_missing.json']
-    files_de = [f'{path}/de_bingnews.json', f'{path}//de_bingnews_missing.json']
-    files_it = [f'{path}/it_bingnews.json', f'{path}//it_bingnews_missing.json']
-    files_es = [f'{path}//es_bingnews_es-ES.json', f'{path}//es_bingnews_es-ES_missing.json']
+    files_en = [f'{path}/en_bingnews.json', f'{path}/en_bingnews_rest.json', f'{path}/en_bingnews_missing.json',
+                f'{path}/en_bingnews_0.json']
+    files_de = [f'{path}/de_bingnews.json', f'{path}/de_bingnews_missing.json', f'{path}/de_bingnews_0.json']
+    files_it = [f'{path}/it_bingnews.json', f'{path}/it_bingnews_missing.json', f'{path}/it_bingnews_0.json']
+    # some spanish files might've been pulled from articles that are prefixed by "anexo"
+    files_es = [f'{path}/es_bingnews_es-ES.json', f'{path}/es_bingnews_es-ES_missing.json',
+                f'{path}/es_bingnews_0.json']
 
     df_news = load_lang_news_hits({'de': files_de, 'en': files_en, 'it': files_it, 'es': files_es})
     df_es_corrected = load_lang_news_hits({'es': [f'{path}/es_bingnews_es-ES_corrected.json']})
@@ -106,6 +109,7 @@ def load_bing_results(path=f'scraping/results'):
     df_news.loc[:, 'bing_hits'] = df_news.apply(
         lambda row: df_es_corrected[df_es_corrected.pagetitle_original == row.pagetitle].bing_hits.values[
             0] if row.pagetitle.startswith('Anexo:') else row.bing_hits, axis=1)
+
     return df_news
 
 
@@ -116,10 +120,25 @@ def check_counts_and_merge(df, df_news, dropna=True):
     print('en', len(df_news[df_news.code == 'en']), len(df[df.code == 'en']))
     print('total', len(df), len(df_news))
 
+    # replace possible "Anexo:" in espanyol:
+    # this is a quick fix due to some issues when pulling data for these "Anexo:<name>" articles
+    for es_article_row in df[df.code == 'es'].iterrows():
+        es_article = es_article_row[1].pagetitle
+        # if an article started with "Anexo:<name>", check whether there is a datapoint in the bing-news-crawl
+        # ... which has an entry for <name> alone and should thus represent the "Anexo" article.
+        if es_article.startswith('Anexo:'):
+            row_filter = (df_news.code == 'es') & (df_news.pagetitle == es_article.replace('Anexo:', ''))
+            # ... if such an entry is found, replace the <name> with 'Anexo:' + <name> to make the merge below easier
+            if row_filter.any():
+                if sum(row_filter) > 1:
+                    print(f'WARNING: More than one row found for {es_article}')
+
+                df_news.loc[row_filter, 'pagetitle'] = es_article
+
     # check duplicates
     df_crawled = df.merge(df_news, on=['pagetitle', 'code'], how='outer')
     df_crawled = df_crawled.loc[~pd.isna(df_crawled.bing_hits)] if dropna else df_crawled
-    print(f'With duplicates, but dropped na from bing {len(df_crawled)}')
+    print(f'With duplicates,{"but dropped na" if dropna else ""} from bing {len(df_crawled)}')
     df_crawled = df_crawled.loc[~df_crawled.pagetitle.duplicated(keep=False), :]
     print(f'Without duplicates {len(df_crawled)}')
     print('de', len(df_crawled[df_crawled.code == 'de']))
@@ -208,10 +227,22 @@ def load_if_in_country_or_lang(df_crawled, path_langs='languages/langs.csv'):
     return df_crawled
 
 
-def load_views(path_views='viewsglobal/all_views_by_country.csv'):
+def load_views(path_views='viewsglobal/all_views_by_country.csv', date_range_from='2015-05-01',
+               date_range_to='2020-12-01'):
     df_views = pd.read_csv(path_views)
-    df_views['month_year'] = df_views.apply(lambda row: f'{row.year}-{row.month:02d}', axis=1)
-    df_views['date_month'] = df_views.apply(lambda row: pd.to_datetime(f'{row.month_year}-01'), axis=1)
+
+    # build daterange for all code-country tuples
+    df_tuples = df_views[['code', 'country']].drop_duplicates()
+    df_series = pd.Series([list(pd.date_range(date_range_from, date_range_to, freq='MS'))] * len(df_tuples))
+    df_tuples = df_tuples.assign(date_month=df_series.values).explode('date_month')  # new col, then explode
+
+    # merge with actual values, fill with 0s for those that don't exist
+    df_views['date_month'] = df_views.apply(lambda row: pd.to_datetime(f'{row.year}-{row.month:02d}-01'), axis=1)
+    df_views = df_views[['code', 'country', 'date_month', 'views_ceil']].merge(df_tuples,
+                                                                               on=['code', 'country', 'date_month'],
+                                                                               how='outer').fillna(0)
+    df_views['month_year'] = df_views.date_month.apply(lambda row: f'{row.year}-{row.month:02d}')
+    # replace countries
     df_views.replace(country_replace_dict, inplace=True)
     return df_views
 
@@ -273,3 +304,28 @@ def replace_country_names(df, inplace=False):
         df.replace(country_replace_dict, inplace=True)
     else:
         return df.replace(country_replace_dict)
+
+
+def load_country_article_views(path_views='countries/pageviews_countries.csv'):
+    df_pageviews_all = pd.read_csv(path_views)
+    df_pageviews_all.date = pd.to_datetime(df_pageviews_all.date)
+    df_pageviews_all['month_year'] = df_pageviews_all.apply(lambda row: f'{row.date.year}-{row.date.month:02d}', axis=1)
+    df_pageviews_all['date_month'] = df_pageviews_all.apply(lambda row: pd.to_datetime(f'{row.month_year}-01'), axis=1)
+    replace_country_names(df_pageviews_all, inplace=True)
+    df_pageviews_all = df_pageviews_all.rename(
+        {view_col: view_col.replace('views_', '') for view_col in df_pageviews_all.columns if
+         view_col.startswith('views_')}, axis=1)
+    return df_pageviews_all
+
+
+def get_pageviews_baseline(row, df_pageviews, ts_months=5, pre_period=0, func=np.median):
+    return func(df_pageviews[
+                    (df_pageviews.en_article == row.country) &
+                    (df_pageviews.date >= (row.event_date - relativedelta(months=ts_months, days=pre_period))) &
+                    (df_pageviews.date < (row.event_date - relativedelta(days=pre_period)))][row.code])
+
+
+def compute_country_article_baseline(df_events, df_views):
+    df_events['view_country_article'] = df_events.apply(
+        lambda row: get_pageviews_baseline(row, df_views, 5), axis=1)
+    return df_events
