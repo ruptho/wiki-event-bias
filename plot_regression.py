@@ -10,7 +10,25 @@ colorblind_tol = ['#117733', '#88CCEE', '#E69F00', '#882255']
 helper_langs = {"de": "German", "fr": "French", "it": "Italian", "en": "English"}
 default_label_dict = {"code": "Language", "de": "German", "fr": "French", "it": "Italian", "en": "English",
                       "es": "Spanish", "gni_class": "Income", "gni_region": "Region", "H": "High", "L": "Low",
-                      "LM": "Lower mid", "UM": "Upper mid", "cat": "Art.Category"}
+                      "LM": "Lower mid", "UM": "Upper mid", "cat": "Art.Category", 'noticed': '>10 views'}
+
+BASELINE_DICT = {'gni_class': 'H', 'in_code_lang': True, 'gni_region': 'North America', 'cat': 'sports', 'code': 'en',
+                 'continent': 'North America', 'economic_region': 'Global North'}
+CAT_DICT = {'en': 'English', 'it': 'Italian', 'es': 'Spanish', 'de': 'German', 'economic_region': 'Global North'}
+LABEL_RENAME_DICT = {'Middle East & North Africa': 'MENAf', 'Latin America & Caribbean': 'LatAmC',
+                     'Europe & Central Asia': 'EuCAs', 'East Asia & Pacific': 'EAsP', 'North America': 'NAm',
+                     'Sub-Saharan Africa': 'SSAf', 'South Asia': 'SAs', 'GDP_pc_z': 'GDP pc (z.)',
+                     'GDP_pc_log': 'GDP pc', 'gni_class': 'Income', 'gni_region': 'Region', 'bing_hits_log': 'Bing',
+                     'view_country_article_log': 'Views to\nCountry\nArticle',
+                     'views_baseline_log': 'Views\nfrom\nCountry', 'bing_hits_z': 'Bing (z)',
+                     'view_country_article_z': 'Views to\nCountry\nArticle (z)', 'cat': 'Article Category',
+                     'views_baseline_z': 'Views\nfrom\nCountry (z)', 'Global North': 'North', 'Global South': 'South'}
+LABEL_SORT_DICT = {'gni_class': ['H', 'UM', 'LM', 'L'], 'cat': ['sports', 'disaster', 'culture', 'politics'],
+                   'gni_region': ['North America', 'Europe & Central Asia',
+                                  'Middle East & North Africa', 'East Asia & Pacific', 'South Asia',
+                                  'Latin America & Caribbean', 'Sub-Saharan Africa'],
+                   'continent': ['North America', 'Africa', 'Asia', 'Europe', 'Oceania', 'South America'],
+                   'economic_region': ['Global North', 'Global South']}
 
 
 def flatten(t):
@@ -425,11 +443,12 @@ def label_from_label_dict(label, label_dict=None):
 
 
 def plot_cat_by_cat_variable(df_inv, col_plot, col_x, col_bar, stacked=False, figsize=(15, 4), sharey=True,
-                             label_dict=None):
+                             label_dict=None, legend_title=None):
+    # allows stacking, better version for "plot_cat_by_cat"
     df_plot = df_inv.copy()
     label_dict = default_label_dict if label_dict is None else label_dict
     bar_plot_vals = df_inv[col_plot].unique()
-    fig, ax = plt.subplots(nrows=1, ncols=len(bar_plot_vals), figsize=figsize, sharey=sharey)
+    fig, ax = plt.subplots(nrows=1, ncols=len(bar_plot_vals), figsize=figsize, sharey=sharey, constrained_layout=True)
 
     overall_sum = 0
     for i, c_plot in enumerate(bar_plot_vals):
@@ -450,7 +469,7 @@ def plot_cat_by_cat_variable(df_inv, col_plot, col_x, col_bar, stacked=False, fi
             axs[i].legend().set_visible(False)
     fig.suptitle(f'Number of articles for "{label_from_label_dict(col_bar)}" by "{label_from_label_dict(col_x)}" and '
                  f'"{label_from_label_dict(col_plot)}" ({overall_sum} overall articles)')
-    plt.tight_layout()
+    # plt.tight_layout()
 
 
 def plot_pearson_residuals(df, model, exclude_n_outliers=0, col=None, ax=None, title='', log_scale=False):

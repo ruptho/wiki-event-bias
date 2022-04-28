@@ -4,8 +4,40 @@ import numpy as np
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 from scipy.stats import chi2
+from scipy import stats
+import pandas as pd
 
 RE_TREATMENT_REF = r", Treatment\(reference=['\"]?[a-zA-Z& ]+['\"]?\)\)"
+
+
+def tjur(model_res, y):
+    df = pd.DataFrame({"ypred": np.round(model_res.fittedvalues), "ytrue": y})
+    return np.abs(df.loc[df.ytrue == 1].ypred.mean() - df.loc[df.ytrue == 0].ypred.mean())
+
+
+def mcfadden(model_res):
+    return 1 - (model_res.llf / model_res.llnull)
+
+
+def cs(model_res):
+    return 1 - np.exp((-2 / model_res.nobs) * (model_res.llf - model_res.llnull))
+
+
+def nagelkerke(model_res):
+    return cs(model_res) / (1 - np.exp(2 * model_res.llnull / model_res.nobs))
+
+
+def likelihood_ratio_test(A, B, delta_df):
+    teststat = -2 * (A - B)
+    return teststat, delta_df, 1 - stats.chi2.cdf(teststat, delta_df)
+
+
+def fit_logit_and_rename_coeffs(df_reg, formula, robust=False, max_iter=100):
+    model = sm.GLM.from_formula(formula=formula, data=df_reg, family=sm.families.Binomial())
+    model.data.xnames = [re.sub(RE_TREATMENT_REF, '', name.replace('C(', '')) for name in model.data.xnames]
+    model_fit = model.fit(cov_type='HC3') if robust else model.fit(maxiter=max_iter)
+    print(f'PseudoR² - Nagelkerke: {nagelkerke(model_fit):.3f} | Mcfadden: {mcfadden(model_fit):.3f}')
+    return model_fit
 
 
 def fit_regression_and_rename_coeffs(df_reg, formula, robust=False):
@@ -28,17 +60,32 @@ def fit_negative_binomial_regression_and_rename_coeffs(df_reg, formula, alpha=1,
     return model.fit(method=est_method, maxiter=max_iter)
 
 
-def fit_regression_and_rename_coeffs_by_cat(df_reg, formula, cat_col='code', type='linear', alpha=1):
+def fit_regression_and_rename_coeffs_by_cat(df_reg, formula, cat_col='code', type='linear', alpha=1, max_iter=100,
+                                            show_summary=False):
+    fit_dict = {}
     if type == 'linear':
-        return {cat: fit_regression_and_rename_coeffs(df_reg[df_reg[cat_col] == cat], formula) for cat in
-                df_reg[cat_col].unique()}
+        fit_dict = {cat: fit_regression_and_rename_coeffs(df_reg[df_reg[cat_col] == cat], formula) for cat in
+                    df_reg[cat_col].unique()}
     elif type == 'poisson':
-        return {cat: fit_poisson_regression_and_rename_coeffs(df_reg[df_reg[cat_col] == cat], formula) for cat in
-                df_reg[cat_col].unique()}
+        fit_dict = {cat: fit_poisson_regression_and_rename_coeffs(df_reg[df_reg[cat_col] == cat], formula) for cat in
+                    df_reg[cat_col].unique()}
     elif type == 'nb':
-        return {cat: fit_negative_binomial_regression_and_rename_coeffs(df_reg[df_reg[cat_col] == cat], formula, alpha)
-                for cat
-                in df_reg[cat_col].unique()}
+        fit_dict = {
+            cat: fit_negative_binomial_regression_and_rename_coeffs(df_reg[df_reg[cat_col] == cat], formula, alpha)
+            for cat
+            in df_reg[cat_col].unique()}
+    elif type == 'logit':
+        fit_dict = {cat: fit_logit_and_rename_coeffs(df_reg[df_reg[cat_col] == cat], formula, max_iter=max_iter)
+                    for cat in df_reg[cat_col].unique()}
+
+    if show_summary:
+        for cat in df_reg[cat_col].unique():
+            print(f'--------------- Summary for {cat} ---------------')
+            if type == 'logit':
+                print(f'McFadden Pseudo R²: {1 - fit_dict[cat].llf / fit_dict[cat].llnull:.3f}')
+            print(fit_dict[cat].summary2(alpha=0.05 * 2))
+
+    return fit_dict
 
 
 def write_reg_results(reg_results, filename, folder='.', method='csv'):
@@ -295,3 +342,20 @@ def fit_nb_with_estimated_alpha_all_codes(codes, df_regression, formula, est_met
             print(fit_dict[code].summary(alpha=sig * 2))
 
     return fit_dict
+
+
+def transform_vars_for_regression(df_reg):
+    df_reg['GDP_pc_z'] = standardize_var(df_reg, 'GDP_pc')
+    df_reg['gdp_z'] = standardize_var(df_reg, 'GDP')
+    df_reg['pop_z'] = standardize_var(df_reg, 'population')
+    df_reg['views_baseline_z'] = standardize_var(df_reg, 'views_baseline')
+    df_reg['view_country_article_z'] = standardize_var(df_reg, 'view_country_article')
+    df_reg['bing_hits_z'] = standardize_var(df_reg, 'bing_hits')
+    df_reg['worldwide'] = df_reg.code.apply(lambda c: (c == 'en') or (c == 'es'))
+    df_reg['view_country_article_log'] = np.log1p(df_reg.view_country_article)
+    df_reg['views_baseline_log'] = np.log1p(df_reg.views_baseline)
+    df_reg['bing_hits_log'] = np.log1p(df_reg.bing_hits)
+    df_reg['GDP_pc_log'] = np.log1p(df_reg.GDP_pc)
+    df_reg['GDP_log'] = np.log1p(df_reg.GDP)
+    df_reg['population_log'] = np.log1p(df_reg.population)
+    return df_reg
