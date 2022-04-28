@@ -82,7 +82,8 @@ def fit_regression_and_rename_coeffs_by_cat(df_reg, formula, cat_col='code', typ
         for cat in df_reg[cat_col].unique():
             print(f'--------------- Summary for {cat} ---------------')
             if type == 'logit':
-                print(f'McFadden Pseudo R²: {1 - fit_dict[cat].llf / fit_dict[cat].llnull:.3f}')
+                print(
+                    f'PseudoR² - Nagelkerke: {nagelkerke(fit_dict[cat]):.3f} | Mcfadden: {mcfadden(fit_dict[cat]):.3f}')
             print(fit_dict[cat].summary2(alpha=0.05 * 2))
 
     return fit_dict
