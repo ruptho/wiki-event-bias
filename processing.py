@@ -58,4 +58,16 @@ def load_preprocessed_events(path='events/new/processed_manually_with_wikiviews.
 
 def compute_mean_and_variance(df: pd.DataFrame, group_col: str, val_col=('views_7_sum',)):
     group_col = group_col[0] if len(group_col) == 1 else group_col
-    return df.groupby(group_col)[val_col].agg(['mean', 'var'])#({'mean': np.mean, 'var': np.var})
+    return df.groupby(group_col)[val_col].agg(['mean', 'var'])  # ({'mean': np.mean, 'var': np.var})
+
+
+def calculate_uniqueness(df: pd.DataFrame, n_days, column):
+    df_col_grouped = df.groupby(['code', column, 'event_date'])['event_id'].count().rename('n_articles').reset_index()
+    df_col_grouped['event_date'] = pd.to_datetime(df_col_grouped.event_date)
+    df_col_grouped['window_unique'] = df_col_grouped.event_date - pd.to_timedelta(f'{n_days} days')
+    df_col_grouped['n_count'] = df_col_grouped.apply(
+        lambda row: np.sum(df_col_grouped[(df_col_grouped.code == row.code) & (
+                df_col_grouped[column] == row[column]) & (df_col_grouped.event_date >= row.window_unique) & (
+                                                  df_col_grouped.event_date < row.event_date)].n_articles),
+        axis=1)
+    return df_col_grouped

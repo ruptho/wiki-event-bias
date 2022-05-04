@@ -43,7 +43,7 @@ def fit_logit_and_rename_coeffs(df_reg, formula, robust=False, max_iter=100):
 def fit_regression_and_rename_coeffs(df_reg, formula, robust=False):
     model = smf.ols(formula=formula, data=df_reg)
     model.data.xnames = [re.sub(RE_TREATMENT_REF, '', name.replace('C(', '')) for name in model.data.xnames]
-    return model.fit(cov_type='HC3') if robust else model.fit()
+    return model.fit(cov_type='HC3') if robust else model.fit_regularized()
 
 
 def fit_poisson_regression_and_rename_coeffs(df_reg, formula):
