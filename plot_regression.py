@@ -13,7 +13,7 @@ default_label_dict = {"code": "Language", "de": "German", "fr": "French", "it": 
                       "LM": "Lower mid", "UM": "Upper mid", "cat": "Art.Category", 'noticed': '>10 views'}
 
 BASELINE_DICT = {'gni_class': 'H', 'in_code_lang': True, 'gni_region': 'North America', 'cat': 'sports', 'code': 'en',
-                 'continent': 'North America', 'economic_region': 'Global North'}
+                 'continent': 'North America', 'economic_region': 'Global North', 'oecd': False}
 CAT_DICT = {'en': 'English', 'it': 'Italian', 'es': 'Spanish', 'de': 'German', 'economic_region': 'Global North'}
 LABEL_RENAME_DICT = {'Middle East & North Africa': 'MENAf', 'Latin America & Caribbean': 'LatAmC',
                      'Europe & Central Asia': 'EuCAs', 'East Asia & Pacific': 'EAsP', 'North America': 'NAm',
@@ -22,7 +22,13 @@ LABEL_RENAME_DICT = {'Middle East & North Africa': 'MENAf', 'Latin America & Car
                      'view_country_article_log': 'Views to\nCountry\nArticle',
                      'views_baseline_log': 'Views\nfrom\nCountry', 'bing_hits_z': 'Bing (z)',
                      'view_country_article_z': 'Views to\nCountry\nArticle (z)', 'cat': 'Article Category',
-                     'views_baseline_z': 'Views\nfrom\nCountry (z)', 'Global North': 'North', 'Global South': 'South'}
+                     'views_baseline_z': 'Views\nfrom\nCountry (z)', 'Global North': 'North', 'Global South': 'South',
+                     'country_articles_z': 'Past\nCountry\nArticles (z)',
+                     'country_articles_log': 'Past\nCountry\nArticles',
+                     'cat_articles_log': 'Past\nCat\nArticles', 'cat_articles_z': 'Past\nCat\nArticles (z)',
+                     'country_cat_articles_log': 'Past\nArticles\nCat+Cntry', 'population_log': 'Pop.',
+                     'population_z': 'Pop. (z)', 'country_cat_articles_z': 'Past\nArticles\nCat+Cntry (z)',
+                     'economic_region': 'Economic\nRegion'}
 LABEL_SORT_DICT = {'gni_class': ['H', 'UM', 'LM', 'L'], 'cat': ['sports', 'disaster', 'culture', 'politics'],
                    'gni_region': ['North America', 'Europe & Central Asia',
                                   'Middle East & North Africa', 'East Asia & Pacific', 'South Asia',
@@ -57,6 +63,7 @@ def plot_regression_results_interactions(df_reg, reg_results, coefficients, coef
     height_ratios = [single_box_ratio * (len(vals_coefficients[coef]) - 1) for coef in normal_coeffs] + [
         single_box_ratio * len(vals_coefficients[base_coef]) * len(vals_coefficients[int_coef])
         for base_coef, int_coef in interaction_coeffs]
+
     outer_grid = fig.add_gridspec(len(coefficients), 1, wspace=0.0, hspace=0.0, height_ratios=height_ratios)
     ylim_min, ylim_max, xlim_min, xlim_max = -1, 4, x_limits[0], x_limits[1]
     outer_grid_pos = outer_grid.get_grid_positions(fig)
@@ -117,20 +124,21 @@ def plot_regression_results_interactions(df_reg, reg_results, coefficients, coef
     return fig
 
 
-def plot_regression_results_from_dict(df_reg, dict_reg_results, coefficients, coef_baselines, label_sort=None,
-                                      cat_dict=None, cat_in_coeff='code', title='', figsize=(8, 8), x_limits=(-2, 2),
-                                      label_rename_dict=None, include_counts=False) -> plt.Figure:
+def plot_regression_results_from_dict(df_reg, dict_reg_results, coefficients, coef_baselines=BASELINE_DICT,
+                                      label_sort=LABEL_SORT_DICT,
+                                      cat_dict=CAT_DICT, cat_in_coeff='code', title='', figsize=(8, 8),
+                                      x_limits=(-2, 2),
+                                      label_rename_dict=LABEL_RENAME_DICT, include_counts=False) -> plt.Figure:
     first_reg_results = list(dict_reg_results.values())[0]  # all regressions were fit on the same formula regardless!
     vals_coefficients, vals_cats = {coef: df_reg[coef].unique() for coef in coefficients if
                                     is_param_categorical(coef, first_reg_results)}, df_reg[cat_in_coeff].unique()
     fig = plt.figure(figsize=figsize, constrained_layout=False)
-
     rows_grid = sum(
-        [(len(vals_coefficients[coef]) - 1 if is_param_categorical(coef, first_reg_results) else 1) for coef in
+        [(len(vals_coefficients[coef]) if is_param_categorical(coef, first_reg_results) else 1) for coef in
          coefficients])
     single_box_ratio = 1 / rows_grid
     height_ratios = [
-        single_box_ratio * (len(vals_coefficients[coef]) - 1 if is_param_categorical(coef, first_reg_results) else 1)
+        single_box_ratio * (len(vals_coefficients[coef]) if is_param_categorical(coef, first_reg_results) else 1)
         for coef in coefficients]
     outer_grid = fig.add_gridspec(len(coefficients), 1, wspace=0.0, hspace=0.0, height_ratios=height_ratios)
     # #valsincoefficients

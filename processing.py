@@ -65,9 +65,28 @@ def calculate_uniqueness(df: pd.DataFrame, n_days, column):
     df_col_grouped = df.groupby(['code', column, 'event_date'])['event_id'].count().rename('n_articles').reset_index()
     df_col_grouped['event_date'] = pd.to_datetime(df_col_grouped.event_date)
     df_col_grouped['window_unique'] = df_col_grouped.event_date - pd.to_timedelta(f'{n_days} days')
-    df_col_grouped['n_count'] = df_col_grouped.apply(
+    df_col_grouped[f'{column}_articles'] = df_col_grouped.apply(
         lambda row: np.sum(df_col_grouped[(df_col_grouped.code == row.code) & (
                 df_col_grouped[column] == row[column]) & (df_col_grouped.event_date >= row.window_unique) & (
                                                   df_col_grouped.event_date < row.event_date)].n_articles),
         axis=1)
-    return df_col_grouped
+    df_col_grouped[f'{column}_articles_log'] = np.log1p(df_col_grouped[f'{column}_articles'])
+    return df.merge(
+        df_col_grouped[['code', column, 'event_date', f'{column}_articles', f'{column}_articles_log']],
+        on=['code', column, 'event_date'], how='left')
+
+
+def calculate_uniqueness_two_columns(df: pd.DataFrame, n_days, column1, column2):
+    df_col_grouped = df.groupby(['code', column1, column2, 'event_date'])['event_id'].count().rename(
+        'n_articles').reset_index()
+    df_col_grouped['event_date'] = pd.to_datetime(df_col_grouped.event_date)
+    df_col_grouped['window_unique'] = df_col_grouped.event_date - pd.to_timedelta(f'{n_days} days')
+    df_col_grouped[f'{column1}_{column2}_articles'] = df_col_grouped.apply(
+        lambda row: np.sum(df_col_grouped[(df_col_grouped.code == row.code) & (
+                df_col_grouped[column1] == row[column1]) & (df_col_grouped[column2] == row[column2]) & (
+                                                  df_col_grouped.event_date >= row.window_unique) & (
+                                                  df_col_grouped.event_date < row.event_date)].n_articles), axis=1)
+    df_col_grouped[f'{column1}_{column2}_articles_log'] = np.log1p(df_col_grouped[f'{column1}_{column2}_articles'])
+    return df.merge(
+        df_col_grouped[['code', column1, column2, 'event_date', f'{column1}_{column2}_articles',
+                       f'{column1}_{column2}_articles_log']], on=['code', column1, column2, 'event_date'], how='left')

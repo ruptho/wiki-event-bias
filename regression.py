@@ -359,4 +359,7 @@ def transform_vars_for_regression(df_reg):
     df_reg['GDP_pc_log'] = np.log1p(df_reg.GDP_pc)
     df_reg['GDP_log'] = np.log1p(df_reg.GDP)
     df_reg['population_log'] = np.log1p(df_reg.population)
+    df_reg['population_z'] =  standardize_var(df_reg, 'population')
+    df_reg['views_before_log'] = np.log1p(df_reg.views_before_sum)
+    df_reg['views_before_z'] = standardize_var(df_reg, 'views_before_sum')
     return df_reg
