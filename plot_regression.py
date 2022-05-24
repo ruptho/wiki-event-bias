@@ -1,10 +1,11 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.lines import Line2D
-
+import pandas as pd
 from regression import get_vals_for_coefficients, extract_coefficient_values_and_stderr, \
     is_param_categorical, extract_coefficient_values_and_stderr_single_code, \
     extract_coefficient_values_and_stderr_single_code_basic
+from matplotlib import gridspec
 
 colorblind_tol = ['#117733', '#88CCEE', '#E69F00', '#882255']
 helper_langs = {"de": "German", "fr": "French", "it": "Italian", "en": "English"}
@@ -12,7 +13,8 @@ default_label_dict = {"code": "Language", "de": "German", "fr": "French", "it": 
                       "es": "Spanish", "gni_class": "Income", "gni_region": "Region", "H": "High", "L": "Low",
                       "LM": "Lower mid", "UM": "Upper mid", "cat": "Art.Category", 'noticed': '>10 views'}
 
-BASELINE_DICT = {'gni_class': 'H', 'in_code_lang': True, 'gni_region': 'North America', 'cat': 'sports', 'code': 'en',
+BASELINE_DICT = {'gni_class': 'H', 'in_code_lang': True, 'planned': False, 'breaking': False,
+                 'gni_region': 'North America', 'cat': 'sports', 'code': 'en',
                  'continent': 'North America', 'economic_region': 'Global North', 'oecd': False}
 CAT_DICT = {'en': 'English', 'it': 'Italian', 'es': 'Spanish', 'de': 'German', 'economic_region': 'Global North'}
 LABEL_RENAME_DICT = {'Middle East & North Africa': 'MENAf', 'Latin America & Caribbean': 'LatAmC',
@@ -28,7 +30,8 @@ LABEL_RENAME_DICT = {'Middle East & North Africa': 'MENAf', 'Latin America & Car
                      'cat_articles_log': 'Past\nCat\nArticles', 'cat_articles_z': 'Past\nCat\nArticles (z)',
                      'country_cat_articles_log': 'Past\nArticles\nCat+Cntry', 'population_log': 'Pop.',
                      'population_z': 'Pop. (z)', 'country_cat_articles_z': 'Past\nArticles\nCat+Cntry (z)',
-                     'economic_region': 'Economic\nRegion'}
+                     'economic_region': 'Economic\nRegion', 'planned': 'Article created\nbefore event',
+                     'breaking': 'Article created\nwithin 1 day'}
 LABEL_SORT_DICT = {'gni_class': ['H', 'UM', 'LM', 'L'], 'cat': ['sports', 'disaster', 'culture', 'politics'],
                    'gni_region': ['North America', 'Europe & Central Asia',
                                   'Middle East & North Africa', 'East Asia & Pacific', 'South Asia',
@@ -46,9 +49,11 @@ def get_label_if_in_dict(label_val, label_rename_dict):
         label_val]
 
 
-def plot_regression_results_interactions(df_reg, reg_results, coefficients, coef_baselines, label_sort=None,
-                                         cat_dict=None, cat_in_coeff='code', title='', figsize=(8, 8),
-                                         x_limits=(-5.5, 5.5), label_rename_dict=None,
+def plot_regression_results_interactions(df_reg, reg_results, coefficients, coef_baselines=BASELINE_DICT,
+                                         label_sort=LABEL_SORT_DICT,
+                                         cat_dict=CAT_DICT, cat_in_coeff='code', title='', figsize=(8, 8),
+                                         x_limits=(-2, 2),
+                                         label_rename_dict=LABEL_RENAME_DICT,
                                          include_counts=False) -> plt.Figure:
     all_coeffs = flatten([[coef] if (':' not in coef) else coef.split(':') for coef in coefficients])
     normal_coeffs = [coef for coef in coefficients if ':' not in coef]
@@ -125,10 +130,9 @@ def plot_regression_results_interactions(df_reg, reg_results, coefficients, coef
 
 
 def plot_regression_results_from_dict(df_reg, dict_reg_results, coefficients, coef_baselines=BASELINE_DICT,
-                                      label_sort=LABEL_SORT_DICT,
-                                      cat_dict=CAT_DICT, cat_in_coeff='code', title='', figsize=(8, 8),
-                                      x_limits=(-2, 2),
-                                      label_rename_dict=LABEL_RENAME_DICT, include_counts=False) -> plt.Figure:
+                                      label_sort=LABEL_SORT_DICT, cat_dict=CAT_DICT, cat_in_coeff='code', title='',
+                                      figsize=(8, 8), x_limits=(-2, 2), label_rename_dict=LABEL_RENAME_DICT,
+                                      include_counts=False, adjust_overdispersion=False) -> plt.Figure:
     first_reg_results = list(dict_reg_results.values())[0]  # all regressions were fit on the same formula regardless!
     vals_coefficients, vals_cats = {coef: df_reg[coef].unique() for coef in coefficients if
                                     is_param_categorical(coef, first_reg_results)}, df_reg[cat_in_coeff].unique()
@@ -167,7 +171,8 @@ def plot_regression_results_from_dict(df_reg, dict_reg_results, coefficients, co
                 # plot val and Cis in plot
                 plot_separate_cats_from_dict(dict_reg_results, coef, val_coef, cat_in_coeff, coef_baselines, i_coef,
                                              i_val, ax, cat_dict, title, None, None, 0, coef_combo_counts,
-                                             extract_val_and_std_func=extract_coefficient_values_and_stderr_single_code_basic)
+                                             extract_val_and_std_func=extract_coefficient_values_and_stderr_single_code_basic,
+                                             adjust_overdispersion=adjust_overdispersion)
                 i_val += 1
 
             # set categorical visualization
@@ -186,7 +191,8 @@ def plot_regression_results_from_dict(df_reg, dict_reg_results, coefficients, co
                                  dict_reg_results} if include_counts else None
             plot_separate_cats_from_dict(dict_reg_results, coef, 'val', cat_in_coeff, coef_baselines, i_coef,
                                          0, ax, cat_dict, title, None, None, 0, coef_combo_counts,
-                                         extract_val_and_std_func=extract_coefficient_values_and_stderr_single_code_basic)
+                                         extract_val_and_std_func=extract_coefficient_values_and_stderr_single_code_basic,
+                                         adjust_overdispersion=adjust_overdispersion)
 
         # if ((i_coef+1) % 2) == 0:
         #    ax.patch.set_facecolor('gray')
@@ -199,10 +205,11 @@ def plot_regression_results_from_dict(df_reg, dict_reg_results, coefficients, co
     return fig
 
 
-def plot_regression_results_interactions_from_dict(df_reg, dict_reg_results, coefficients, coef_baselines,
-                                                   label_sort=None, cat_dict=None, cat_in_coeff='code', title='',
-                                                   figsize=(8, 8),
-                                                   x_limits=(-5.5, 5.5), label_rename_dict=None,
+def plot_regression_results_interactions_from_dict(df_reg, dict_reg_results, coefficients, coef_baselines=BASELINE_DICT,
+                                                   label_sort=LABEL_SORT_DICT,
+                                                   cat_dict=CAT_DICT, cat_in_coeff='code', title='', figsize=(8, 8),
+                                                   x_limits=(-2, 2),
+                                                   label_rename_dict=LABEL_RENAME_DICT,
                                                    include_counts=False) -> plt.Figure:
     all_coeffs = flatten([[coef] if (':' not in coef) else coef.split(':') for coef in coefficients])
     normal_coeffs = [coef for coef in coefficients if ':' not in coef]
@@ -225,6 +232,7 @@ def plot_regression_results_interactions_from_dict(df_reg, dict_reg_results, coe
         is_int_coef = isinstance(coef, list) or isinstance(coef, tuple)
         bottom, top, left, right = outer_grid_pos[0][i_coef], outer_grid_pos[1][i_coef], outer_grid_pos[2][0], \
                                    outer_grid_pos[3][0]
+
         if is_int_coef:
             base_coef, int_coef = coef[0], coef[1]
             n_base_coeffs, n_int_coeffs = len(vals_coefficients[base_coef]), len(vals_coefficients[int_coef])
@@ -277,7 +285,7 @@ def plot_regression_results_interactions_from_dict(df_reg, dict_reg_results, coe
 
 def plot_cat(reg_results, i_cat, cat, base_coef, base_coef_val, cat_in_coeff, coef_baselines, i_coef, i_val,
              ax, cat_dict, title, int_coef, int_coef_val, i_int_coef_val, counts_dict,
-             extract_coeff_func=extract_coefficient_values_and_stderr):
+             extract_coeff_func=extract_coefficient_values_and_stderr, adjust_overdispersion=False):
     x_coef_for_cat, stderr_coef_for_cat = extract_coeff_func(
         reg_results, base_coef, base_coef_val,
         base_coef_val == coef_baselines[base_coef] if is_param_categorical(base_coef, reg_results) else False,
@@ -287,6 +295,13 @@ def plot_cat(reg_results, i_cat, cat, base_coef, base_coef_val, cat_in_coeff, co
     if counts_dict is not None and counts_dict[cat] < 1:
         x_coef_for_cat = 0
         stderr_coef_for_cat = 0.01
+    elif adjust_overdispersion:
+        sum_z_squared, degrees = np.sum(reg_results.resid_pearson ** 2), reg_results.df_resid
+        tau = sum_z_squared / degrees
+        #print(f'Overdispersion factor: {tau:.2f}')
+        #print(stderr_coef_for_cat, stderr_coef_for_cat * np.sqrt(tau))
+        stderr_coef_for_cat *= np.sqrt(tau)
+
 
     ci_lower, ci_upper = x_coef_for_cat - 1.959 * stderr_coef_for_cat, x_coef_for_cat + 1.959 * stderr_coef_for_cat
     # print(x_coef_for_cat, stderr_coef_for_cat, cat, base_coef, ci_lower, ci_upper)
@@ -312,12 +327,14 @@ def plot_cat(reg_results, i_cat, cat, base_coef, base_coef_val, cat_in_coeff, co
 def plot_separate_cats_from_dict(dict_reg_results, base_coef, base_coef_val, cat_in_coeff, coef_baselines, i_coef,
                                  i_val, ax, cat_dict, title, int_coef=None, int_coef_val=None, i_int_coef_val=0,
                                  counts_dict=None,
-                                 extract_val_and_std_func=extract_coefficient_values_and_stderr_single_code):
+                                 extract_val_and_std_func=extract_coefficient_values_and_stderr_single_code,
+                                 adjust_overdispersion=False):
     # plot
     for i_cat, cat in enumerate(dict_reg_results.keys()):
         reg_results = dict_reg_results[cat]
         plot_cat(reg_results, i_cat, cat, base_coef, base_coef_val, cat_in_coeff, coef_baselines, i_coef, i_val,
-                 ax, cat_dict, title, int_coef, int_coef_val, i_int_coef_val, counts_dict, extract_val_and_std_func)
+                 ax, cat_dict, title, int_coef, int_coef_val, i_int_coef_val, counts_dict, extract_val_and_std_func,
+                 adjust_overdispersion)
 
 
 def plot_separate_cats(vals_cats, reg_results, base_coef, base_coef_val, cat_in_coeff, coef_baselines, i_coef, i_val,
@@ -478,6 +495,7 @@ def plot_cat_by_cat_variable(df_inv, col_plot, col_x, col_bar, stacked=False, fi
     fig.suptitle(f'Number of articles for "{label_from_label_dict(col_bar)}" by "{label_from_label_dict(col_x)}" and '
                  f'"{label_from_label_dict(col_plot)}" ({overall_sum} overall articles)')
     # plt.tight_layout()
+    return fig
 
 
 def plot_pearson_residuals(df, model, exclude_n_outliers=0, col=None, ax=None, title='', log_scale=False):
@@ -523,3 +541,31 @@ def compute_regression_outliers_from_residual(model, exclude_n_outliers=10):
     resid_outliers = model.resid_pearson.nlargest(exclude_n_outliers)
     outlier_filter = ~model.resid_pearson.isin(resid_outliers)
     return resid_outliers, outlier_filter
+
+
+def plot_heatmap_and_clustermap(df_reg, cols, corr_f='spearman', suptitle='', corr_matrix=None, figsize=(25, 11),
+                                cmap_title='Spearman Rank Correlation'):
+    import seaborn as sns
+    if corr_matrix is None:
+        df_dummies = pd.get_dummies(df_reg[cols])
+        df_dummies.columns = df_dummies.columns.str.lower()
+        df_dummies = df_dummies[sorted(df_dummies.columns)]
+        corr_matrix = df_dummies.corr(corr_f)
+
+    cm = sns.clustermap(corr_matrix, figsize=figsize, cmap="coolwarm_r",
+                        cbar_kws={'label': cmap_title}, vmin=-1, vmax=1)
+    cm.gs.update(left=0.00, right=0.3)
+    cm.ax_heatmap.set_title('Clustered Heatmap')
+    cm.fig.suptitle(suptitle, x=0.4)
+
+    # create new gridspec for the right part
+    gs2 = gridspec.GridSpec(1, 1, left=0.525)
+    # create axes within this new gridspec
+    ax2 = cm.fig.add_subplot(gs2[0])
+
+    # plot boxplot in the new axes
+    hm = sns.heatmap(corr_matrix, cmap="coolwarm_r", cbar_kws={'label': cmap_title}, ax=ax2,
+                     vmin=-1, vmax=1)
+    title = ax2.set_title('Heatmap (Ordered Alphabetically)')
+    return cm.fig, corr_matrix
+# plt.show()

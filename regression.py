@@ -1,11 +1,12 @@
 import re
 
 import numpy as np
+import pandas as pd
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
-from scipy.stats import chi2
+from mrmr import mrmr_classif
 from scipy import stats
-import pandas as pd
+from scipy.stats import chi2
 
 RE_TREATMENT_REF = r", Treatment\(reference=['\"]?[a-zA-Z& ]+['\"]?\)\)"
 
@@ -27,9 +28,23 @@ def nagelkerke(model_res):
     return cs(model_res) / (1 - np.exp(2 * model_res.llnull / model_res.nobs))
 
 
-def likelihood_ratio_test(A, B, delta_df):
-    teststat = -2 * (A - B)
-    return teststat, delta_df, 1 - stats.chi2.cdf(teststat, delta_df)
+def likelihood_ratio_test(reduced_model, full_model):
+    # H0: The full model and the nested model fit the data equally well. Thus, you should use the nested model.
+    # HA: The full model fits the data significantly better than the nested model. Thus, you should use the full model.
+    teststat = -2 * (reduced_model.llf - full_model.llf)
+    delta_df = abs(full_model.df_resid - reduced_model.df_resid)
+    return np.round(teststat, 2), delta_df, np.round(1 - stats.chi2.cdf(teststat, delta_df), 3)
+
+
+def likelihood_ratio_test_all(dict_reduced, dict_full, correct=None):
+    dict_code = {}
+    for code, model_reduced in dict_reduced.items():
+        model_full = dict_full[code]
+        teststat, delta_df, p_val = likelihood_ratio_test(model_reduced, model_full)
+        if correct == 'bonferroni':
+            p_val *= len(dict_reduced)
+        dict_code[code] = {'lambda_lr': teststat, 'delta_df': delta_df, 'p_val': p_val}
+    return dict_code
 
 
 def fit_logit_and_rename_coeffs(df_reg, formula, robust=False, max_iter=100):
@@ -207,7 +222,7 @@ def extract_coefficient_values_and_stderr(res, coeff_col, coeff_val, coeff_is_ba
     if cat_is_baseline:
         if coefficient_string != '':
             val, std = res.params[coefficient_string], get_standard_error_sum(res, [coefficient_string])
-            print(coefficient_string)
+            # print(coefficient_string)
         else:
             # val, std = res.params['Intercept'], get_standard_error_sum(res, ['Intercept'])
             val, std = 0, get_standard_error_sum(res, ['Intercept'])  # - res.params['Intercept']
@@ -215,7 +230,7 @@ def extract_coefficient_values_and_stderr(res, coeff_col, coeff_val, coeff_is_ba
         cat_interaction = f'{cat_col}[T.{cat_val}]'
         coefficient_cat_string = f'{coefficient_string}{":" if len(coefficient_string) > 0 else ""}{cat_interaction}'
         if not add_cat_coeff:
-            print(coefficient_cat_string)
+            # print(coefficient_cat_string)
             val, std = res.params[coefficient_cat_string], get_standard_error_sum(res, [coefficient_cat_string])
         else:
             # print(coefficient_string, is_param_categorical(coeff_col, res), coeff_val, coeff_int_val,
@@ -223,7 +238,7 @@ def extract_coefficient_values_and_stderr(res, coeff_col, coeff_val, coeff_is_ba
             # to get the absolute value of the interacted coefficient, we have to add the baseline to it for vals,
             # and must account for the covariates in the standard errors as of: https://stats.stackexchange.com/a/3657
             # print(cat_interaction, coefficient_cat_string)
-            print(coefficient_string, coefficient_cat_string)
+            # print(coefficient_string, coefficient_cat_string)
             if coefficient_string != '':
                 # print(f'{coefficient_string} + {coefficient_cat_string}')
                 val = res.params[coefficient_string] + res.params[coefficient_cat_string]
@@ -239,8 +254,8 @@ def extract_coefficient_values_and_stderr_single_code(res, coeff_col, coeff_val,
                                                       coeff_int_is_baseline=False, cat_col='code', cat_val='en',
                                                       cat_is_baseline=False, add_cat_coeff=True):
     # difference
-    print(coeff_val, coeff_int_val, coeff_is_baseline, coeff_int_is_baseline, cat_val)
-    print(coeff_int_col, coeff_int_val)
+    # print(coeff_val, coeff_int_val, coeff_is_baseline, coeff_int_is_baseline, cat_val)
+    # print(coeff_int_col, coeff_int_val)
     if coeff_is_baseline and coeff_int_is_baseline:
         return 0, 0  # => reference for this "box"
     else:
@@ -305,7 +320,8 @@ def fit_nb(df_regression, formula, est_method='IRLS', sig=0.05, alpha=1, offset_
               f'Pseudo R² (1 - D/D_0) = {1 - nb_fit_alpha.deviance / nb_fit_alpha.null_deviance:.4f}\n'
               f'Pseudo ChiSq: {nb_fit_alpha.pearson_chi2:.2f} | '
               f'Good-Fit-ChiSq: {chi2.ppf(1 - sig, df=nb_fit_alpha.df_resid):.2f} | '
-              f'Residual DF: {nb_fit_alpha.df_resid}')
+              f'Residual DF: {nb_fit_alpha.df_resid}\n'
+              f'AIC: {nb_fit_alpha.aic:.2f} | BIC: {nb_fit_alpha.bic:.2f}')
         # TODO: Log-Likelihood and deviance fits
         # https://stats.stackexchange.com/a/113022
         # print(nb_fit_alpha.null_deviance - nb_fit_alpha.deviance, chi2.ppf(1 - sig, df=nb_fit_alpha.df_model))
@@ -317,27 +333,45 @@ def fit_nb(df_regression, formula, est_method='IRLS', sig=0.05, alpha=1, offset_
     return nb_fit_alpha
 
 
-def fit_nb_with_estimated_alpha(df_regression, formula, est_method='IRLS', sig=0.05, offset_col=None, output_lvl=3):
+def fit_nb_with_estimated_alpha(df_regression, formula, est_method='IRLS', sig=0.05, offset_col=None, output_lvl=3,
+                                return_alpha=False):
     # other method: lbfgs
     glm_p, alpha, pval = estimate_alpha(df_regression, formula, est_method, offset_col, output_lvl > 0)
     nb_fit_alpha = fit_nb(df_regression, formula, est_method, sig, alpha, offset_col, output_lvl > 0)
-    return nb_fit_alpha
+    return nb_fit_alpha if not return_alpha else nb_fit_alpha, alpha
 
 
 def standardize_var(df, col):
     return (df[col] - np.mean(df[col])) / np.std(df[col], ddof=1)
 
 
-def fit_nb_with_estimated_alpha_all_codes(codes, df_regression, formula, est_method='IRLS', sig=0.05, offset_col=None,
-                                          output_lvl=2):
+def fit_nb_with_alpha_all_codes(codes, df_regression, formula, alpha_dict, est_method='IRLS', sig=0.05, offset_col=None,
+                                output_lvl=2):
     fit_dict = {}
     for i, code in enumerate(codes):
         if output_lvl > 0:
             print(f'________________________________________________________________________________________________')
             print(f'================= Fitting {code} =================')
 
-        fit_dict[code] = fit_nb_with_estimated_alpha(df_regression[df_regression.code == code], formula, est_method,
-                                                     sig, offset_col, output_lvl)
+        fit_dict[code] = fit_nb(df_regression[df_regression.code == code], formula, est_method,
+                                sig, alpha_dict[code], offset_col, output_lvl > 0)
+        if output_lvl > 1:
+            print(f'--------------- Summary for {code} ---------------')
+            print(fit_dict[code].summary(alpha=sig * 2))
+
+    return fit_dict
+
+
+def fit_nb_with_estimated_alpha_all_codes(codes, df_regression, formula, est_method='IRLS', sig=0.05, offset_col=None,
+                                          output_lvl=2, alpha_dict={}):
+    fit_dict = {}
+    for i, code in enumerate(codes):
+        if output_lvl > 0:
+            print(f'________________________________________________________________________________________________')
+            print(f'================= Fitting {code} =================')
+        fit_dict[code], alpha_dict[code] = fit_nb_with_estimated_alpha(df_regression[df_regression.code == code],
+                                                                       formula, est_method,
+                                                                       sig, offset_col, output_lvl, return_alpha=True)
         if output_lvl > 1:
             print(f'--------------- Summary for {code} ---------------')
             print(fit_dict[code].summary(alpha=sig * 2))
@@ -355,11 +389,58 @@ def transform_vars_for_regression(df_reg):
     df_reg['worldwide'] = df_reg.code.apply(lambda c: (c == 'en') or (c == 'es'))
     df_reg['view_country_article_log'] = np.log1p(df_reg.view_country_article)
     df_reg['views_baseline_log'] = np.log1p(df_reg.views_baseline)
+    df_reg['views_before_sum_log'] = np.log1p(df_reg.views_before_sum)
     df_reg['bing_hits_log'] = np.log1p(df_reg.bing_hits)
     df_reg['GDP_pc_log'] = np.log1p(df_reg.GDP_pc)
     df_reg['GDP_log'] = np.log1p(df_reg.GDP)
     df_reg['population_log'] = np.log1p(df_reg.population)
-    df_reg['population_z'] =  standardize_var(df_reg, 'population')
+    df_reg['population_z'] = standardize_var(df_reg, 'population')
     df_reg['views_before_log'] = np.log1p(df_reg.views_before_sum)
     df_reg['views_before_z'] = standardize_var(df_reg, 'views_before_sum')
+    df_reg['planned'] = df_reg.planed == 'planed'
+    df_reg['breaking'] = df_reg.surprising == 'surprising'
+    # page_creation = datetime.strptime('2020-10-31T23:59:59','%Y-%m-%dT%H:%M:%S')
+    # event_date = datetime.strptime('2020-11-T00:00:01','%Y-%m-%dT%H:%M:%S')
     return df_reg
+
+
+# ================ FEATURE SELECTION
+def corrwith_series_spearman(X, target_column, features):
+    return X[features].corrwith(X[target_column], method='spearman')
+
+
+def compute_mrmr_for_code(df_reg, coefs, cat_coefs, target='views_7_sum', rel_func='f', red_func='pearson',
+                          cat_domains: dict = None):
+    red_func = 'c' if red_func == 'pearson' else corrwith_series_spearman if red_func == 'spearman' else None
+    df, has_domains = df_reg.copy(), False
+    if cat_domains:
+        df.rename(
+            columns={column: f'{domain}_{column}' for domain, columns in cat_domains.items() for column in columns})
+        has_domains = True
+    code_res, red_matrices = [], {}
+
+    # all entries
+    features, relevance, redundancy = mrmr_classif(X=df[coefs], y=df[target], K=len(coefs), cat_features=cat_coefs,
+                                                   redundancy=red_func, relevance=rel_func,
+                                                   only_same_domain=has_domains,
+                                                   n_jobs=-1, return_scores=True, show_progress=False)
+    code_res.append(pd.DataFrame([[column, val] for column, val in zip(*(features, relevance))],
+                                 columns=[('all', f'column'), ('all', f'rel')]))
+    red_matrices['all'] = redundancy
+
+    # codes separate
+    for code, df_code in df.groupby('code'):
+        coefs_lang = [coef for coef in coefs if coef != 'code']
+        features, relevance, redundancy = mrmr_classif(X=df_code[coefs_lang], y=df_code[target], K=len(coefs_lang),
+                                                       redundancy=red_func, relevance=rel_func,
+                                                       only_same_domain=has_domains,
+                                                       n_jobs=-1, return_scores=True, show_progress=False,
+                                                       cat_features=[coef for coef in cat_coefs if coef != 'code'])
+        code_res.append(pd.DataFrame([[column, val] for column, val in zip(*(features, relevance))],
+                                     columns=[(code, f'column'), (code, f'rel')]))
+        red_matrices[code] = redundancy
+
+    # combine
+    df_res = pd.concat(code_res, axis=1)
+    df_res.columns = pd.MultiIndex.from_tuples(df_res.columns)
+    return df_res, red_matrices
