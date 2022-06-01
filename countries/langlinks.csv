@@ -1,0 +1,598 @@
+en_article,lang,langlink
+Pakistan,es,Pakistán
+Pakistan,it,Pakistan
+Pakistan,de,Pakistan
+United States,es,Estados Unidos
+United States,it,Stati Uniti d'America
+United States,de,Vereinigte Staaten
+India,es,India
+India,it,India
+India,de,Indien
+Vietnam,es,Vietnam
+Vietnam,it,Vietnam
+Vietnam,de,Vietnam
+Azerbaijan,es,Azerbaiyán
+Azerbaijan,it,Azerbaigian
+Azerbaijan,de,Aserbaidschan
+Germany,es,Alemania
+Germany,it,Germania
+Germany,de,Deutschland
+France,es,Francia
+France,it,Francia
+France,de,Frankreich
+Nigeria,es,Nigeria
+Nigeria,it,Nigeria
+Nigeria,de,Nigeria
+Poland,es,Polonia
+Poland,it,Polonia
+Poland,de,Polen
+Australia,es,Australia
+Australia,it,Australia
+Australia,de,Australien
+Cameroon,es,Camerún
+Cameroon,it,Camerun
+Cameroon,de,Kamerun
+Turkey,es,Turquía
+Turkey,it,Turchia
+Turkey,de,Türkei
+Canada,es,Canadá
+Canada,it,Canada
+Canada,de,Kanada
+Afghanistan,es,Afganistán
+Afghanistan,it,Afghanistan
+Afghanistan,de,Afghanistan
+Austria,es,Austria
+Austria,it,Austria
+Austria,de,Österreich
+Netherlands,es,Países Bajos
+Netherlands,it,Paesi Bassi
+Netherlands,de,Niederlande
+China,es,República Popular China
+China,it,Cina
+China,de,Volksrepublik China
+Romania,es,Rumania
+Romania,it,Romania
+Romania,de,Rumänien
+Portugal,es,Portugal
+Portugal,it,Portogallo
+Portugal,de,Portugal
+Brazil,es,Brasil
+Brazil,it,Brasile
+Brazil,de,Brasilien
+Guatemala,es,Guatemala
+Guatemala,it,Guatemala
+Guatemala,de,Guatemala
+Iran,es,Irán
+Iran,it,Iran
+Iran,de,Iran
+United Kingdom,es,Reino Unido
+United Kingdom,it,Regno Unito
+United Kingdom,de,Vereinigtes Königreich
+South Korea,es,Corea del Sur
+South Korea,it,Corea del Sud
+South Korea,de,Südkorea
+Croatia,es,Croacia
+Croatia,it,Croazia
+Croatia,de,Kroatien
+Norway,es,Noruega
+Norway,it,Norvegia
+Norway,de,Norwegen
+Yemen,es,Yemen
+Yemen,it,Yemen
+Yemen,de,Jemen
+New Zealand,es,Nueva Zelanda
+New Zealand,it,Nuova Zelanda
+New Zealand,de,Neuseeland
+Iceland,es,Islandia
+Iceland,it,Islanda
+Iceland,de,Island
+Chile,es,Chile
+Chile,it,Cile
+Chile,de,Chile
+Bulgaria,es,Bulgaria
+Bulgaria,it,Bulgaria
+Bulgaria,de,Bulgarien
+Egypt,es,Egipto
+Egypt,it,Egitto
+Egypt,de,Ägypten
+Japan,es,Japón
+Japan,it,Giappone
+Japan,de,Japan
+Indonesia,es,Indonesia
+Indonesia,it,Indonesia
+Indonesia,de,Indonesien
+Spain,es,España
+Spain,it,Spagna
+Spain,de,Spanien
+Finland,es,Finlandia
+Finland,it,Finlandia
+Finland,de,Finnland
+Switzerland,es,Suiza
+Switzerland,it,Svizzera
+Switzerland,de,Schweiz
+Gabon,es,Gabón
+Gabon,it,Gabon
+Gabon,de,Gabun
+Russia,es,Rusia
+Russia,it,Russia
+Russia,de,Russland
+Slovakia,es,Eslovaquia
+Slovakia,it,Slovacchia
+Slovakia,de,Slowakei
+Niger,es,Níger
+Niger,it,Niger
+Niger,de,Niger
+Hungary,es,Hungría
+Hungary,it,Ungheria
+Hungary,de,Ungarn
+Somalia,es,Somalia
+Somalia,it,Somalia
+Somalia,de,Somalia
+Sweden,es,Suecia
+Sweden,it,Svezia
+Sweden,de,Schweden
+Denmark,es,Dinamarca
+Denmark,it,Danimarca
+Denmark,de,Dänemark
+Qatar,es,Catar
+Qatar,it,Qatar
+Qatar,de,Katar
+Armenia,es,Armenia
+Armenia,it,Armenia
+Armenia,de,Armenien
+Dominican Republic,es,República Dominicana
+Dominican Republic,it,Repubblica Dominicana
+Dominican Republic,de,Dominikanische Republik
+Côte d'Ivoire,es,Costa de Marfil
+Côte d'Ivoire,it,Costa d'Avorio
+Côte d'Ivoire,de,Elfenbeinküste
+Rwanda,es,Ruanda
+Rwanda,it,Ruanda
+Rwanda,de,Ruanda
+Colombia,es,Colombia
+Colombia,it,Colombia
+Colombia,de,Kolumbien
+Uruguay,es,Uruguay
+Uruguay,it,Uruguay
+Uruguay,de,Uruguay
+Thailand,es,Tailandia
+Thailand,it,Thailandia
+Thailand,de,Thailand
+Kosovo,es,Kosovo
+Kosovo,it,Kosovo
+Kosovo,de,Kosovo
+Italy,es,Italia
+Italy,it,Italia
+Italy,de,Italien
+Czech Republic,es,República Checa
+Czech Republic,it,Repubblica Ceca
+Czech Republic,de,Tschechien
+Myanmar,es,Birmania
+Myanmar,it,Birmania
+Myanmar,de,Myanmar
+Comoros,es,Comoras
+Comoros,it,Comore
+Comoros,de,Komoren
+Philippines,es,Filipinas
+Philippines,it,Filippine
+Philippines,de,Philippinen
+Jamaica,es,Jamaica
+Jamaica,it,Giamaica
+Jamaica,de,Jamaika
+Tanzania,es,Tanzania
+Tanzania,it,Tanzania
+Tanzania,de,Tansania
+Belarus,es,Bielorrusia
+Belarus,it,Bielorussia
+Belarus,de,Belarus
+Ukraine,es,Ucrania
+Ukraine,it,Ucraina
+Ukraine,de,Ukraine
+Georgia,es,Georgia (desambiguación)
+Georgia,it,Georgia (disambigua)
+Georgia,de,Georgia (Begriffsklärung)
+Singapore,es,Singapur
+Singapore,it,Singapore
+Singapore,de,Singapur
+Iraq,es,Irak
+Iraq,it,Iraq
+Iraq,de,Irak
+Belize,es,Belice
+Belize,it,Belize
+Belize,de,Belize
+Peru,es,Perú
+Peru,it,Perù
+Peru,de,Peru
+Ghana,es,Ghana
+Ghana,it,Ghana
+Ghana,de,Ghana
+Cambodia,es,Camboya
+Cambodia,it,Cambogia
+Cambodia,de,Kambodscha
+Serbia,es,Serbia
+Serbia,it,Serbia
+Serbia,de,Serbien
+Israel,es,Israel
+Israel,it,Israele
+Israel,de,Israel
+Libya,es,Libia
+Libya,it,Libia
+Libya,de,Libyen
+Uganda,es,Uganda
+Uganda,it,Uganda
+Uganda,de,Uganda
+Uzbekistan,es,Uzbekistán
+Uzbekistan,it,Uzbekistan
+Uzbekistan,de,Usbekistan
+Guinea,es,Guinea
+Guinea,it,Guinea
+Guinea,de,Guinea
+Zambia,es,Zambia
+Zambia,it,Zambia
+Zambia,de,Sambia
+United Arab Emirates,es,Emiratos Árabes Unidos
+United Arab Emirates,it,Emirati Arabi Uniti
+United Arab Emirates,de,Vereinigte Arabische Emirate
+Samoa,es,Samoa
+Samoa,it,Samoa
+Samoa,de,Samoa
+South Africa,es,Sudáfrica
+South Africa,it,Sudafrica
+South Africa,de,Südafrika
+Mexico,es,México
+Mexico,it,Messico
+Mexico,de,Mexiko
+Venezuela,es,Venezuela
+Venezuela,it,Venezuela
+Venezuela,de,Venezuela
+Malaysia,es,Malasia
+Malaysia,it,Malaysia
+Malaysia,de,Malaysia
+Kyrgyzstan,es,Kirguistán
+Kyrgyzstan,it,Kirghizistan
+Kyrgyzstan,de,Kirgisistan
+Belgium,es,Bélgica
+Belgium,it,Belgio
+Belgium,de,Belgien
+Macedonia,es,Macedonia
+Macedonia,it,Macedonia
+Macedonia,de,Mazedonien
+Estonia,es,Estonia
+Estonia,it,Estonia
+Estonia,de,Estland
+Lithuania,es,Lituania
+Lithuania,it,Lituania
+Lithuania,de,Litauen
+Slovenia,es,Eslovenia
+Slovenia,it,Slovenia
+Slovenia,de,Slowenien
+Angola,es,Angola
+Angola,it,Angola
+Angola,de,Angola
+Marshall Islands,es,Islas Marshall
+Marshall Islands,it,Isole Marshall
+Marshall Islands,de,Marshallinseln
+Oman,es,Omán
+Oman,it,Oman
+Oman,de,Oman
+Nauru,es,Nauru
+Nauru,it,Nauru
+Nauru,de,Nauru
+Cyprus,es,Chipre
+Cyprus,it,Cipro
+Cyprus,de,Republik Zypern
+Montenegro,es,Montenegro
+Montenegro,it,Montenegro
+Montenegro,de,Montenegro
+Zimbabwe,es,Zimbabue
+Zimbabwe,it,Zimbabwe
+Zimbabwe,de,Simbabwe
+Moldova,es,Moldavia
+Moldova,it,Moldavia
+Moldova,de,Republik Moldau
+Argentina,es,Argentina
+Argentina,it,Argentina
+Argentina,de,Argentinien
+Morocco,es,Marruecos
+Morocco,it,Marocco
+Morocco,de,Marokko
+Ireland,es,Irlanda (isla)
+Ireland,it,Irlanda (isola)
+Ireland,de,Irland (Insel)
+Luxembourg,es,Luxemburgo
+Luxembourg,it,Lussemburgo
+Luxembourg,de,Luxemburg
+Chad,es,Chad
+Chad,it,Ciad
+Chad,de,Tschad
+Greece,es,Grecia
+Greece,it,Grecia
+Greece,de,Griechenland
+British Virgin Islands,es,Islas Vírgenes Británicas
+British Virgin Islands,it,Isole Vergini britanniche
+British Virgin Islands,de,Britische Jungferninseln
+Hong Kong,es,Hong Kong
+Hong Kong,it,Hong Kong
+Hong Kong,de,Hongkong
+Namibia,es,Namibia
+Namibia,it,Namibia
+Namibia,de,Namibia
+South Sudan,es,Sudán del Sur
+South Sudan,it,Sudan del Sud
+South Sudan,de,Südsudan
+Lebanon,es,Líbano
+Lebanon,it,Libano
+Lebanon,de,Libanon
+Ecuador,es,Ecuador
+Ecuador,it,Ecuador
+Ecuador,de,Ecuador
+Bolivia,es,Bolivia
+Bolivia,it,Bolivia
+Bolivia,de,Bolivien
+Kazakhstan,es,Kazajistán
+Kazakhstan,it,Kazakistan
+Kazakhstan,de,Kasachstan
+Kiribati,es,Kiribati
+Kiribati,it,Kiribati
+Kiribati,de,Kiribati
+Mali,es,Malí
+Mali,it,Mali
+Mali,de,Mali
+Tunisia,es,Túnez
+Tunisia,it,Tunisia
+Tunisia,de,Tunesien
+Benin,es,Benín
+Benin,it,Benin
+Benin,de,Benin
+Seychelles,es,Seychelles
+Seychelles,it,Seychelles
+Seychelles,de,Seychellen
+Saint Vincent and the Grenadines,es,San Vicente y las Granadinas
+Saint Vincent and the Grenadines,it,Saint Vincent e Grenadine
+Saint Vincent and the Grenadines,de,St. Vincent und die Grenadinen
+Andorra,es,Andorra
+Andorra,it,Andorra
+Andorra,de,Andorra
+Syria,es,Siria
+Syria,it,Siria
+Syria,de,Syrien
+Djibouti,es,Yibuti
+Djibouti,it,Gibuti
+Djibouti,de,Dschibuti
+Vanuatu,es,Vanuatu
+Vanuatu,it,Vanuatu
+Vanuatu,de,Vanuatu
+Burkina Faso,es,Burkina Faso
+Burkina Faso,it,Burkina Faso
+Burkina Faso,de,Burkina Faso
+Kenya,es,Kenia
+Kenya,it,Kenya
+Kenya,de,Kenia
+Bahrain,es,Baréin
+Bahrain,it,Bahrein
+Bahrain,de,Bahrain
+Nicaragua,es,Nicaragua
+Nicaragua,it,Nicaragua
+Nicaragua,de,Nicaragua
+Gambia,es,Gambia
+Gambia,it,Gambia
+Gambia,de,Gambia
+Democratic Republic of the Congo,es,República Democrática del Congo
+Democratic Republic of the Congo,it,Repubblica Democratica del Congo
+Democratic Republic of the Congo,de,Demokratische Republik Kongo
+Latvia,es,Letonia
+Latvia,it,Lettonia
+Latvia,de,Lettland
+Senegal,es,Senegal
+Senegal,it,Senegal
+Senegal,de,Senegal
+Nepal,es,Nepal
+Nepal,it,Nepal
+Nepal,de,Nepal
+Equatorial Guinea,es,Guinea Ecuatorial
+Equatorial Guinea,it,Guinea Equatoriale
+Equatorial Guinea,de,Äquatorialguinea
+Laos,es,Laos
+Laos,it,Laos
+Laos,de,Laos
+Mongolia,es,Mongolia
+Mongolia,it,Mongolia
+Mongolia,de,Mongolei
+Tajikistan,es,Tayikistán
+Tajikistan,it,Tagikistan
+Tajikistan,de,Tadschikistan
+Tonga,es,Tonga
+Tonga,it,Tonga
+Tonga,de,Tonga
+Monaco,es,Mónaco
+Monaco,it,Principato di Monaco
+Monaco,de,Monaco
+Mozambique,es,Mozambique
+Mozambique,it,Mozambico
+Mozambique,de,Mosambik
+Papua New Guinea,es,Papúa Nueva Guinea
+Papua New Guinea,it,Papua Nuova Guinea
+Papua New Guinea,de,Papua-Neuguinea
+Jordan,es,Jordania
+Jordan,it,Giordania
+Jordan,de,Jordanien
+Saint Lucia,es,Santa Lucía
+Saint Lucia,it,Saint Lucia
+Saint Lucia,de,St. Lucia
+Haiti,es,Haití
+Haiti,it,Haiti
+Haiti,de,Haiti
+Bangladesh,es,Bangladés
+Bangladesh,it,Bangladesh
+Bangladesh,de,Bangladesch
+Mauritius,es,Mauricio
+Mauritius,it,Mauritius
+Mauritius,de,Mauritius
+Algeria,es,Argelia
+Algeria,it,Algeria
+Algeria,de,Algerien
+Cuba,es,Cuba
+Cuba,it,Cuba
+Cuba,de,Kuba
+Timor-Leste,es,Timor Oriental
+Timor-Leste,it,Timor Est
+Timor-Leste,de,Osttimor
+San Marino,es,San Marino
+San Marino,it,San Marino
+San Marino,de,San Marino
+North Korea,es,Corea del Norte
+North Korea,it,Corea del Nord
+North Korea,de,Nordkorea
+Bosnia and Herzegovina,es,Bosnia y Herzegovina
+Bosnia and Herzegovina,it,Bosnia ed Erzegovina
+Bosnia and Herzegovina,de,Bosnien und Herzegowina
+Curaçao,es,Curazao
+Curaçao,it,Curaçao
+Curaçao,de,Curaçao
+Liechtenstein,es,Liechtenstein
+Liechtenstein,it,Liechtenstein
+Liechtenstein,de,Liechtenstein
+Palau,es,Palaos
+Palau,it,Palau (stato)
+Palau,de,Palau
+Malta,es,Malta
+Malta,it,Malta
+Malta,de,Malta
+Kuwait,es,Kuwait
+Kuwait,it,Kuwait
+Kuwait,de,Kuwait
+Grenada,es,Granada (país)
+Grenada,it,Grenada
+Grenada,de,Grenada
+Turkmenistan,es,Turkmenistán
+Turkmenistan,it,Turkmenistan
+Turkmenistan,de,Turkmenistan
+Solomon Islands,es,Islas Salomón
+Solomon Islands,it,Isole Salomone
+Solomon Islands,de,Salomonen
+Liberia,es,Liberia
+Liberia,it,Liberia
+Liberia,de,Liberia
+Albania,es,Albania
+Albania,it,Albania
+Albania,de,Albanien
+Cayman Islands,es,Islas Caimán
+Cayman Islands,it,Isole Cayman
+Cayman Islands,de,Cayman Islands
+Federated States of Micronesia,es,Estados Federados de Micronesia
+Federated States of Micronesia,it,Stati Federati di Micronesia
+Federated States of Micronesia,de,Föderierte Staaten von Mikronesien
+Sri Lanka,es,Sri Lanka
+Sri Lanka,it,Sri Lanka
+Sri Lanka,de,Sri Lanka
+Panama,es,Panamá
+Panama,it,Panama
+Panama,de,Panama
+Bahamas,es,Bahamas
+Bahamas,it,Bahamas
+Bahamas,de,Bahamas
+Costa Rica,es,Costa Rica
+Costa Rica,it,Costa Rica
+Costa Rica,de,Costa Rica
+Lesotho,es,Lesoto
+Lesotho,it,Lesotho
+Lesotho,de,Lesotho
+Madagascar,es,Madagascar
+Madagascar,it,Madagascar
+Madagascar,de,Madagaskar
+Mauritania,es,Mauritania
+Mauritania,it,Mauritania
+Mauritania,de,Mauretanien
+Sierra Leone,es,Sierra Leona
+Sierra Leone,it,Sierra Leone
+Sierra Leone,de,Sierra Leone
+Greenland,es,Groenlandia
+Greenland,it,Groenlandia
+Greenland,de,Grönland
+Fiji,es,Fiyi
+Fiji,it,Figi
+Fiji,de,Fidschi
+Aruba,es,Aruba
+Aruba,it,Aruba
+Aruba,de,Aruba
+Honduras,es,Honduras
+Honduras,it,Honduras
+Honduras,de,Honduras
+Saudi Arabia,es,Arabia Saudita
+Saudi Arabia,it,Arabia Saudita
+Saudi Arabia,de,Saudi-Arabien
+El Salvador,es,El Salvador
+El Salvador,it,El Salvador
+El Salvador,de,El Salvador
+Barbados,es,Barbados
+Barbados,it,Barbados
+Barbados,de,Barbados
+Paraguay,es,Paraguay
+Paraguay,it,Paraguay
+Paraguay,de,Paraguay
+Trinidad and Tobago,es,Trinidad y Tobago
+Trinidad and Tobago,it,Trinidad e Tobago
+Trinidad and Tobago,de,Trinidad und Tobago
+Bhutan,es,Bután
+Bhutan,it,Bhutan
+Bhutan,de,Bhutan
+Antigua and Barbuda,es,Antigua y Barbuda
+Antigua and Barbuda,it,Antigua e Barbuda
+Antigua and Barbuda,de,Antigua und Barbuda
+Togo,es,Togo
+Togo,it,Togo
+Togo,de,Togo
+Central African Republic,es,República Centroafricana
+Central African Republic,it,Repubblica Centrafricana
+Central African Republic,de,Zentralafrikanische Republik
+Maldives,es,Maldivas
+Maldives,it,Maldive
+Maldives,de,Malediven
+Tuvalu,es,Tuvalu
+Tuvalu,it,Tuvalu
+Tuvalu,de,Tuvalu
+Ethiopia,es,Etiopía
+Ethiopia,it,Etiopia
+Ethiopia,de,Äthiopien
+Dominica,es,Dominica
+Dominica,it,Dominica
+Dominica,de,Dominica
+Guyana,es,Guyana
+Guyana,it,Guyana
+Guyana,de,Guyana
+Botswana,es,Botsuana
+Botswana,it,Botswana
+Botswana,de,Botswana
+Malawi,es,Malaui
+Malawi,it,Malawi
+Malawi,de,Malawi
+Sudan,es,Sudán
+Sudan,it,Sudan
+Sudan,de,Sudan
+Suriname,es,Surinam
+Suriname,it,Suriname
+Suriname,de,Suriname
+Saint Kitts and Nevis,es,San Cristóbal y Nieves
+Saint Kitts and Nevis,it,Saint Kitts e Nevis
+Saint Kitts and Nevis,de,St. Kitts und Nevis
+Bermuda,es,Bermudas
+Bermuda,it,Bermuda
+Bermuda,de,Bermuda
+Burundi,es,Burundi
+Burundi,it,Burundi
+Burundi,de,Burundi
+Puerto Rico,es,Puerto Rico
+Puerto Rico,it,Porto Rico
+Puerto Rico,de,Puerto Rico
+Cape Verde,es,Cabo Verde
+Cape Verde,it,Capo Verde
+Cape Verde,de,Kap Verde
+Sao Tome and Principe,es,Santo Tomé y Príncipe
+Sao Tome and Principe,it,São Tomé e Príncipe
+Sao Tome and Principe,de,São Tomé und Príncipe
+Sint Maarten,es,San Martín (Países Bajos)
+Sint Maarten,it,Sint Maarten
+Sint Maarten,de,Sint Maarten
+Republic of the Congo,es,República del Congo
+Republic of the Congo,it,Repubblica del Congo
+Republic of the Congo,de,Republik Kongo

@@ -210,7 +210,7 @@ def plot_regression_results_interactions_from_dict(df_reg, dict_reg_results, coe
                                                    cat_dict=CAT_DICT, cat_in_coeff='code', title='', figsize=(8, 8),
                                                    x_limits=(-2, 2),
                                                    label_rename_dict=LABEL_RENAME_DICT,
-                                                   include_counts=False) -> plt.Figure:
+                                                   include_counts=False, adjust_overdispersion=False) -> plt.Figure:
     all_coeffs = flatten([[coef] if (':' not in coef) else coef.split(':') for coef in coefficients])
     normal_coeffs = [coef for coef in coefficients if ':' not in coef]
     interaction_coeffs = [coef.split(':') for coef in coefficients if ':' in coef]
@@ -257,7 +257,8 @@ def plot_regression_results_interactions_from_dict(df_reg, dict_reg_results, coe
                         cat in cat_dict} if include_counts else None
                     plot_separate_cats_from_dict(dict_reg_results, base_coef, base_coef_val, cat_in_coeff,
                                                  coef_baselines, i_coef, i_base_coef_val, ax, cat_dict, title, int_coef,
-                                                 int_coef_val, i_int_coef_val, coef_combo_counts)
+                                                 int_coef_val, i_int_coef_val, coef_combo_counts,
+                                                 adjust_overdispersion=adjust_overdispersion)
 
                     if i_coef == 0 and i_int_coef_val == 0 and i_base_coef_val == 0:
                         legend_elements = \
@@ -298,10 +299,9 @@ def plot_cat(reg_results, i_cat, cat, base_coef, base_coef_val, cat_in_coeff, co
     elif adjust_overdispersion:
         sum_z_squared, degrees = np.sum(reg_results.resid_pearson ** 2), reg_results.df_resid
         tau = sum_z_squared / degrees
-        #print(f'Overdispersion factor: {tau:.2f}')
-        #print(stderr_coef_for_cat, stderr_coef_for_cat * np.sqrt(tau))
+        # print(f'Overdispersion factor: {tau:.2f}')
+        # print(stderr_coef_for_cat, stderr_coef_for_cat * np.sqrt(tau))
         stderr_coef_for_cat *= np.sqrt(tau)
-
 
     ci_lower, ci_upper = x_coef_for_cat - 1.959 * stderr_coef_for_cat, x_coef_for_cat + 1.959 * stderr_coef_for_cat
     # print(x_coef_for_cat, stderr_coef_for_cat, cat, base_coef, ci_lower, ci_upper)

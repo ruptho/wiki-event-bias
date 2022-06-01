@@ -277,6 +277,18 @@ def extract_coefficient_values_and_stderr_single_code(res, coeff_col, coeff_val,
     return val, std
 
 
+def extract_coefficient_values_and_stderr_continuous(res, coeff_col_cont, coeff_int_col=None, coeff_int_val=None):
+    if coeff_int_col is None:
+        val, std = res.params[coeff_col_cont], get_standard_error_sum(res, [coeff_col_cont])
+        # print(f'{cat_val}: {interaction_coefficient} = {val}')
+    else:
+        coeff_interaction_string = f'{coeff_col_cont}:{coeff_int_col}[T.{coeff_int_val}]'
+        val = res.params[coeff_col_cont] + res.params[coeff_interaction_string]
+        std = get_standard_error_sum(res, [coeff_col_cont, coeff_interaction_string])
+        # print(f'{cat_val}: {interaction_coefficient} + {coeff_interaction_string} = {val}')
+    return val, std
+
+
 def extract_coefficient_values_and_stderr_single_code_basic(res, coeff_col, coeff_val, coeff_is_baseline=False,
                                                             coeff_int_col=None, coeff_int_val=None,
                                                             coeff_int_is_baseline=False, cat_col='code', cat_val='en',
@@ -444,3 +456,16 @@ def compute_mrmr_for_code(df_reg, coefs, cat_coefs, target='views_7_sum', rel_fu
     df_res = pd.concat(code_res, axis=1)
     df_res.columns = pd.MultiIndex.from_tuples(df_res.columns)
     return df_res, red_matrices
+
+
+def compute_significance_continuous(fit_dict, codes, cats):
+    for code in codes:
+        print(code)
+        for cat in cats:
+            val, std = extract_coefficient_values_and_stderr_continuous(fit_dict[code], 'GDP_pc_log',
+                                                                        None if cat == 'sports' else 'cat', cat)
+            sum_z_squared, degrees = np.sum(fit_dict[code].resid_pearson ** 2), fit_dict[code].df_resid
+            tau = sum_z_squared / degrees
+            ci_lower, ci_upper = val - 1.959 * std * np.sqrt(tau), val + 1.959 * std * np.sqrt(tau)
+            print(f'GDP_pc_log for {cat}: {val:.3f} {std:.3f} [{ci_lower:.3f}, {ci_upper:.3f}] '
+                  f'{"*" if not ((ci_lower < 0) and (ci_upper > 0)) else "o"}')
