@@ -35,6 +35,28 @@ PV_GRANULARITY_DAY = 'daily'
 PV_GRANULARITY_MONTH = 'monthly'
 
 
+def get_redirects(pagetitle, language):
+    URL = "https://" + language + ".wikipedia.org/w/api.php"
+    PARAMS = {
+        "action": "query",
+        "format": "json",
+        "titles": pagetitle,
+        "prop": "redirects",
+        "rdlimit": "100"
+    }
+    data = rq.get(url=URL, params=PARAMS).json()
+    page = data["query"]["pages"]
+
+    redirects = []
+    try:
+        for key, value in page.items():
+            for redirect in value["redirects"]:
+                redirects.append(redirect["title"])
+    except:
+        redirects = []
+    return redirects
+
+
 def retrieve_pageviews_aggregate(lang, start=20140101, end=20220101, access=PV_ACCESS_ALL,
                                  granularity=PV_GRANULARITY_DAY, agent=PV_AGENT_ALL, legacy=False):
     if not legacy:
@@ -164,7 +186,8 @@ def get_langlinks_for_country_articles_and_langs(country_articles, langs, name_s
 
 
 def retrieve_pageviews_for_articles_across_langs(df_langlinks, start=20140101, end=20220101, combine_rows=True,
-                                                 access=PV_ACCESS_ALL, granularity=PV_GRANULARITY_DAY, agent=PV_AGENT_ALL):
+                                                 access=PV_ACCESS_ALL, granularity=PV_GRANULARITY_DAY,
+                                                 agent=PV_AGENT_ALL):
     # use english as baseline, then store row-wise
     df_retrieved = []
 
@@ -199,3 +222,48 @@ def retrieve_pageviews_for_articles_and_langs(articles, langs, start=20140101, e
         df_lang['code'] = lang
         df_retrieved.append(df_lang)
     return pd.concat(df_retrieved)
+
+
+def retrieve_edit_counts(lang, start=20180101, end=20201201, granularity='daily', editor_type='user',
+                         page_type='content'):
+    response = rq.get(
+        f'{WM_API}/metrics/edits/aggregate/{lang}.wikipedia.org/{editor_type}/{page_type}/{granularity}/{start}/{end}')
+    data = response.json()
+    df_edits = pd.DataFrame(data['items'][0]['results'])
+    df_edits['date'] = pd.to_datetime(df_edits.timestamp).dt.date
+    df_edits['edits'] = df_edits.edits
+    df_edits['user_kind'] = editor_type
+    df_edits['lang'] = lang
+    return df_edits[['edits', 'date', 'user_kind', 'lang']]
+
+
+def retrieve_edit_counts_edit_types_article(article, lang, start=20180101, end=20201201,
+                                                edit_types=EDITOR_ALL_TYPES, granularity='daily'):
+    return pd.concat(
+        [retrieve_edits_per_article_and_editor_type(article, lang, start, end, editor_type, granularity) for editor_type
+         in edit_types], axis=0)
+
+
+def retrieve_edit_counts_edit_types_articles(articles, lang, start=20180101, end=20201201, edit_types=EDITOR_ALL_TYPES,
+                                             granularity='daily'):
+    return pd.concat([retrieve_edit_counts_edit_types_article(
+        article, lang, start, end, edit_types, granularity) for article in articles], axis=0)
+
+
+def retrieve_edits_per_article_and_editor_type(article, lang, start=20140101, end=20220101,
+                                               editor_type=EDITOR_TYPE_USER,
+                                               granularity=PV_GRANULARITY_DAY):
+    url = f'{WM_API}/metrics/edits/per-page/{lang}.wikipedia.org/{title.normalize(article)}/{editor_type}/' \
+          f'{granularity}/{start}/{end}'
+
+    response = rq.get(url, headers=headers)
+    lang_result = {'article': article, 'date': [], 'edits': [], 'type': editor_type}
+    # print(url, response.text)
+    string = response.json()
+
+    if 'items' in string:
+        for item in string['items']:  # should only be one item
+            for res in item['results']:
+                lang_result['date'].append(pd.to_datetime(res['timestamp'][:10], format='%Y-%m-%d'))
+                lang_result['edits'].append(res['edits'])
+    return pd.DataFrame(lang_result)
