@@ -1,5 +1,6 @@
 # Our files
 dumps/
+.idea/
 
 # DEFAULT GITIGNORE
 # Byte-compiled / optimized / DLL files
@@ -131,3 +132,15 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+/crossval_results/noreg_edit_rf.pkl
+/crossval_results/noreg_edited_rf.pkl
+/crossval_results/noreg_edited_svc.pkl
+/crossval_results/noreg_edits_rf.pkl
+/crossval_results/noreg_edits_svc.pkl
+/crossval_results/noreg_edits_xgb.pkl
+/crossval_results/noreg_viewed_rf.pkl
+/crossval_results/noreg_viewed_svc.pkl
+/crossval_results/noreg_viewed_xgb.pkl
+/crossval_results/noreg_views_rf.pkl
+/crossval_results/noreg_views_svc.pkl
+/crossval_results/noreg_views_xgb.pkl
