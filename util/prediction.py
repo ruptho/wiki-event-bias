@@ -270,7 +270,6 @@ def load_rf_and_xgb_models(df_class, df_viewreg, df_editreg, prefix='noreg_', fa
     model_eval = {}
     for path, model_info in models.items():
         if model_info:
-            print(f'{model_dir}/{path}')
             model_eval[path] = ModelEvaluator(model_info[0], model_info[1],
                                               'noticed' if 'viewed' in path else 'edited' if 'edited' in path else
                                               'edits_7_sum_log' if 'edits' in path else 'views_7_sum_log',

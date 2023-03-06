@@ -21,4 +21,4 @@ As `crossval_results` and `shap` folders are too large for GitHub, we provide th
   - `plot_shapval.ipynb`:
     - Line plots for GDP per capita SHAP values across language editions, with regions as markers
     - Chloropleth (map) plots for the effect of regions across article categories
-  - `disaster_analysis`: Experiment in regards to category-specific features, in this case the number of deaths during a disaster (terror attack, earthquake, etc.)
+  - `disaster_analysis.ipynb`: Experiment in regards to category-specific features, in this case the number of deaths during a disaster (terror attack, earthquake, etc.)
