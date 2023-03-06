@@ -32,6 +32,10 @@ model_label_key = {'edited_rf': 'Random Forest',
                    'edits_svc': 'Support Vector Machine',
                    'edits_xgb': 'XGBoost'}
 
+cont_cols_def = ['country_articles_log', 'population_log', 'cat_articles_log', 'GDP_pc_log', 'view_country_article_log',
+                 'views_baseline_log']
+fact_cols_def = ['gni_region', 'code', 'cat']
+
 
 class ModelEvaluator:
     def __init__(self, model, df, target_col, metric, params=None, split_data_start=pd.to_datetime('2016-01-01'),
@@ -251,7 +255,8 @@ def encode_cols(df, factor_cols):
 
 
 def load_rf_and_xgb_models(df_class, df_viewreg, df_editreg, prefix='noreg_', factor_cols=['code', 'cat'],
-                           months_train=35, months_val=12, months_full_train=46, months_test=12, model_dir='new'):
+                           months_train=35, months_val=12, months_full_train=46, months_test=12,
+                           model_dir='crossval_results'):
     models = {
         f'{prefix}edited_xgb': (XGBClassifier(n_jobs=16), df_class),
         f'{prefix}edits_xgb': (XGBRegressor(n_jobs=16), df_editreg),
@@ -265,11 +270,14 @@ def load_rf_and_xgb_models(df_class, df_viewreg, df_editreg, prefix='noreg_', fa
     model_eval = {}
     for path, model_info in models.items():
         if model_info:
+            print(f'{model_dir}/{path}')
             model_eval[path] = ModelEvaluator(model_info[0], model_info[1],
-                                              'noticed' if 'viewed' in path else 'edited' if 'edited' in path else 'edits_7_sum_log' if 'edits' in path else 'views_7_sum_log',
+                                              'noticed' if 'viewed' in path else 'edited' if 'edited' in path else
+                                              'edits_7_sum_log' if 'edits' in path else 'views_7_sum_log',
                                               'f1_micro' if ('viewed' in path) or (
                                                       'edited' in path) else 'neg_mean_squared_error',
+                                              factor_cols=factor_cols,
                                               params=None, months_train=months_train, months_val=months_val,
                                               months_full_train=months_full_train, months_test=months_test)
-            model_eval[path].load_grid_search_result(f'{model_dir}/{path}')
+            model_eval[path].load_grid_search_result(path, path=model_dir)
     return models, model_eval

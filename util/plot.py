@@ -10,7 +10,7 @@ from sklearn.preprocessing import PolynomialFeatures
 import matplotlib as mpl
 import plotly.express as px
 
-from preprocessing import replace_country_names
+from util.preprocessing import replace_country_names
 
 colorblind_tol4 = ['#117733', '#88CCEE', '#E69F00', '#882255']
 colorblind_tol2 = ['#88CCEE', '#117733']
@@ -58,7 +58,7 @@ LABEL_RENAME_DICT = {'Middle East & North Africa': 'MENAf', 'Latin America & Car
 
 def plot_shap_lineplot_for_model(shap_vals_alt_dict, model_dict, model_str, x_col='GDP_pc_log', x_cont=None,
                                  format_col='gni_region', sep_col='gni_region',
-                                 path='figures/shap/', regtype='poly', reg_ci=95, func_order=5, figsize=(15, 3),
+                                 path='figures/line/', regtype='poly', reg_ci=95, func_order=5, figsize=(15, 3),
                                  alpha=0.5, model_prefix='noreg_', model_postfix='_xgb'):
     full_model_str = f'{model_prefix}{model_str}{model_postfix}'
     model, shapvals = model_dict[full_model_str], shap_vals_alt_dict[full_model_str]
@@ -102,8 +102,8 @@ def plot_contributions_sep(df_data, df_contribution, x, sep_cols=['code_en', 'co
         ax = axs[i]
         mask = (df_data[code] == 1).values
         df_plot = df_data[mask].copy()
-        df_contribution_sep = df_contribution[mask]
-        df_inv_trans = df_inv[mask]
+        df_contribution_sep = df_contribution[mask].copy()
+        df_inv_trans = df_inv[mask].copy()
         if not x_cont:
             x_cont = x
 
@@ -293,7 +293,7 @@ def build_chloropleths_df(df, column, group_col, color_data, color_map,
 
 
 def plot_chloropleth(df_data, val_col='views_7_sum_log', color_data='gni_region', color_map='region_wb',
-                     geojson_path='maps/custom.geo.json', metric='mean', range_color=(-0.4, 0.4),
+                     geojson_path='data/maps/custom.geo.json', metric='mean', range_color=(-0.4, 0.4),
                      cmap=mpl.cm.coolwarm_r, show_legend=True, relative_scale=False):
     with open(geojson_path) as f:
         gj = geojson.load(f)
@@ -368,3 +368,42 @@ def get_continuous_scale(cmap):
                 [0.86, 'rgb(159, 218, 58)'], [1, 'rgb(253, 231, 37)']]
     else:
         return None
+
+
+def plot_disaster_results(df_shap, shap_values, shap_interaction, save_path='figures/shap/deaths_singlecol.pdf',
+                          align_y=True, mark_indices=None):
+    import seaborn as sns
+    fig, axs = plt.subplots(ncols=2, figsize=(8, 2.75))  # figsize=(8, 2.75))
+    colors = df_shap.GDP_pc_log.values
+    marker_size = 60
+
+    scatter_death = sns.scatterplot(x=df_shap['deaths_log'], y=shap_values[:, 'deaths_log'].values, c=colors,
+                                    # style=df_shap.code_en if 'code_en' in df_shap.columns else None,
+                                    alpha=0.33, ax=axs[0], cmap='viridis', legend=None, s=marker_size)
+    scatter_int = sns.scatterplot(x=df_shap['deaths_log'], y=shap_interaction[:, 1, 0] * 2, c=colors, alpha=0.33,
+                                  #  style=df_shap.code_en if 'code_en' in df_shap.columns else None,
+                                  ax=axs[1], legend='brief', cmap='viridis', s=marker_size)
+    scatter_death.set_ylabel('SHAP Value for Deaths (log1p)')
+    scatter_int.set_ylabel('SHAP Interaction Value for\nGDP pc (log) and Deaths (log1p)')
+    scatter_death.set_xlabel('Deaths (log1p)')
+    scatter_int.set_xlabel('Deaths (log1p)')
+
+    min_y, max_y = 1000, -1000
+    if align_y:
+        for ax in axs:
+            lim_y_min, lim_y_max = ax.get_ylim()
+            max_y = lim_y_max if lim_y_max > max_y else max_y
+            min_y = lim_y_min if lim_y_min < min_y else min_y
+            ax.set_ylabel(ax.get_ylabel(), fontsize='large')
+            ax.set_xlabel(ax.get_xlabel(), fontsize='large')
+
+    for ax in axs:
+        if align_y:
+            ax.set_ylim((min_y - 0.1, max_y))
+        ax.axhline(0, color='gray', linestyle=':', zorder=-1)
+
+    fig.tight_layout()
+    fig.subplots_adjust(wspace=0.3)  # fig.subplots_adjust(wspace=0.42)
+    if save_path:
+        fig.savefig('figures/shap/deaths_singlecol.pdf', bbox_inches='tight')
+    return fig

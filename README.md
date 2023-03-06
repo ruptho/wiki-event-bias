@@ -15,5 +15,10 @@ This repository contains the preprocessed data files as well as code for the mai
 As `crossval_results` and `shap` folders are too large for GitHub, we provide them here: <TODO>  zenodo links
 
 ## Notebooks and Scripts
-- `scripts`-Directory: Contains helper and util files called by the notebooks in the main directory
-- `notebook1.ipynb` TODO describe notebooks
+- `util`-Directory: Contains helper and util files called by the notebooks in the main directory
+- Experiments and Visualizations:
+  - `plot_metrics.ipynb`: Chloropleth (map) plots for article metrics such as article count or median views/edits to articles per region and country
+  - `plot_shapval.ipynb`:
+    - Line plots for GDP per capita SHAP values across language editions, with regions as markers
+    - Chloropleth (map) plots for the effect of regions across article categories
+  - `disaster_analysis`: Experiment in regards to category-specific features, in this case the number of deaths during a disaster (terror attack, earthquake, etc.)
