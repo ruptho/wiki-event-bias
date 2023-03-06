@@ -1,7 +1,5 @@
-
 countries_version = {'en': ['United States'], 'it': ['Italy'], 'de': ['Germany'], 'es': ['Spain']}
 version_language = {'en': 'English', 'it': 'Italian', 'de': 'German', 'es': 'Spanish'}
-
 
 country_replace_dict = {
     'Bahamas, The': 'Bahamas',
@@ -73,6 +71,7 @@ country_replace_dict = {
     "Virgin Islands, British": "British Virgin Islands",
     "United States of America": "United States"
 }
+
 
 def replace_country_names(df, inplace=False):
     if inplace:

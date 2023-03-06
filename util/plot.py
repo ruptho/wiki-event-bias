@@ -1,14 +1,14 @@
 import geojson
+import matplotlib as mpl
 import numpy as np
 import pandas as pd
+import plotly.express as px
 from matplotlib import pyplot as plt
 from matplotlib.ticker import FuncFormatter
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import GridSearchCV, KFold
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import PolynomialFeatures
-import matplotlib as mpl
-import plotly.express as px
 
 from util.preprocessing import replace_country_names
 

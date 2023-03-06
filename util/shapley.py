@@ -1,6 +1,7 @@
+import pickle
+
 import numpy as np
 import pandas as pd
-import pickle
 
 
 def get_indices(all_cols,

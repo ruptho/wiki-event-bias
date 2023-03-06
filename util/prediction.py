@@ -1,23 +1,13 @@
-import numpy as np
-import pandas as pd
-
-import numpy as np
-import pandas as pd
-from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
-from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error, get_scorer
-import seaborn as sns
-import matplotlib.pyplot as plt
-from sklearn.model_selection import GridSearchCV, PredefinedSplit, RandomizedSearchCV
 import pickle
 
-from xgboost import XGBClassifier, XGBRegressor
-
-import itertools
-from sklearn.dummy import DummyRegressor, DummyClassifier
-from sklearn import tree, metrics
-from joblib import Parallel, delayed
+import numpy as np
+import pandas as pd
 from category_encoders import OneHotEncoder
 from sklearn.base import clone
+from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
+from sklearn.metrics import get_scorer
+from sklearn.model_selection import GridSearchCV, PredefinedSplit, RandomizedSearchCV
+from xgboost import XGBClassifier, XGBRegressor
 
 model_label_key = {'edited_rf': 'Random Forest',
                    'edited_svc': 'Support Vector Machine',
