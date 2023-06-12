@@ -1,7 +1,10 @@
 import pickle
+from itertools import combinations
 
 import numpy as np
 import pandas as pd
+import scipy.stats as stats
+from scipy.stats import mannwhitneyu
 
 
 def get_indices(all_cols,
@@ -46,9 +49,21 @@ def load_shapval_results(shap_result_path):
     return shap_vals, shap_vals_int, shap_vals_acv
 
 
+def get_df_dict_models(model_dict, shap_dict, val_col, val_col_raw=None,
+                       cat_cols=['pagetitle', 'code', 'cat', 'country', 'gni_region', 'event_date', 'GDP_pc_log',
+                                 'views_7_sum', 'edits_7_sum']):
+    if not val_col_raw:
+        val_col_raw = val_col
+    models = ['viewed', 'edited', 'views', 'edits']
+    return {model: pd.concat([model_dict[f'noreg_{model}_xgb'].get_full_dataset(decoded=True, all_cols=True)[
+                                  cat_cols].reset_index(drop=True),
+                              pd.Series(shap_dict[f'noreg_{model}_xgb'][:, val_col].values).rename(
+                                  val_col_raw + '_SHAP')], axis=1) for model in models}
+
+
 def combine_categories_SHAP_all(shap_val_dict, col_baselines={'code': ['en', 'de', 'es', 'it'],
-                                                              'cat': ['disaster', 'sports', 'politics',
-                                                                      'culture']}):
+                                                              'cat': ['disaster', 'sports', 'politics', 'culture']}):
     for key, shapvals in shap_val_dict.items():
         shap_val_dict[key].values = combine_categories_SHAP(shapvals, col_baselines)
     return shap_val_dict
+

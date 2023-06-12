@@ -1,0 +1,123 @@
+Language,Category,Region,South Asia,"East Asia &
+Pacific","Latin America &
+Caribbean","Middle East &
+North Africa","Europe &
+Central Asia","Sub-Saharan
+Africa","North
+America"
+German,Culture,South Asia,–,–,–,–,–,–,–
+German,Culture,East Asia & Pacific,,–,–,–,–,–,–
+German,Culture,Latin America & Caribbean,,,–,–,–,–,–
+German,Culture,Middle East & North Africa,,,,–,–,–,–
+German,Culture,Europe & Central Asia,,,,0.157,–,–,–
+German,Culture,Sub-Saharan Africa,,,,,,–,–
+German,Culture,North America,,,,0.156,0.019,,–
+German,Disaster,South Asia,–,–,–,–,–,–,–
+German,Disaster,East Asia & Pacific,0.735,–,–,–,–,–,–
+German,Disaster,Latin America & Caribbean,0.51,0.923,–,–,–,–,–
+German,Disaster,Middle East & North Africa,0.429,0.243,0.328,–,–,–,–
+German,Disaster,Europe & Central Asia,0.041,0.17,0.076,0.001,–,–,–
+German,Disaster,Sub-Saharan Africa,0.503,0.823,0.726,0.272,0.449,–,–
+German,Disaster,North America,0.01,0.159,0.002,0.001,0.892,0.465,–
+German,Politics,South Asia,–,–,–,–,–,–,–
+German,Politics,East Asia & Pacific,0.043,–,–,–,–,–,–
+German,Politics,Latin America & Caribbean,0.013,0.387,–,–,–,–,–
+German,Politics,Middle East & North Africa,0.013,0.778,0.814,–,–,–,–
+German,Politics,Europe & Central Asia,0.001,0.034,0.005,0.013,–,–,–
+German,Politics,Sub-Saharan Africa,0.821,0.125,0.14,0.069,<0.001,–,–
+German,Politics,North America,0.003,0.864,0.132,0.436,0.104,0.015,–
+German,Sports,South Asia,–,–,–,–,–,–,–
+German,Sports,East Asia & Pacific,<0.001,–,–,–,–,–,–
+German,Sports,Latin America & Caribbean,<0.001,<0.001,–,–,–,–,–
+German,Sports,Middle East & North Africa,<0.001,0.411,<0.001,–,–,–,–
+German,Sports,Europe & Central Asia,<0.001,<0.001,<0.001,<0.001,–,–,–
+German,Sports,Sub-Saharan Africa,0.087,0.016,0.331,0.002,<0.001,–,–
+German,Sports,North America,<0.001,0.014,<0.001,0.447,<0.001,<0.001,–
+English,Culture,South Asia,–,–,–,–,–,–,–
+English,Culture,East Asia & Pacific,<0.001,–,–,–,–,–,–
+English,Culture,Latin America & Caribbean,0.001,0.001,–,–,–,–,–
+English,Culture,Middle East & North Africa,0.156,0.196,0.156,–,–,–,–
+English,Culture,Europe & Central Asia,<0.001,0.688,0.003,0.296,–,–,–
+English,Culture,Sub-Saharan Africa,0.125,<0.001,0.065,0.189,<0.001,–,–
+English,Culture,North America,0.282,<0.001,0.01,0.133,<0.001,0.197,–
+English,Disaster,South Asia,–,–,–,–,–,–,–
+English,Disaster,East Asia & Pacific,<0.001,–,–,–,–,–,–
+English,Disaster,Latin America & Caribbean,0.012,<0.001,–,–,–,–,–
+English,Disaster,Middle East & North Africa,0.222,<0.001,0.879,–,–,–,–
+English,Disaster,Europe & Central Asia,<0.001,<0.001,<0.001,<0.001,–,–,–
+English,Disaster,Sub-Saharan Africa,0.013,0.172,0.892,0.219,<0.001,–,–
+English,Disaster,North America,<0.001,0.41,<0.001,<0.001,<0.001,0.015,–
+English,Politics,South Asia,–,–,–,–,–,–,–
+English,Politics,East Asia & Pacific,<0.001,–,–,–,–,–,–
+English,Politics,Latin America & Caribbean,<0.001,0.27,–,–,–,–,–
+English,Politics,Middle East & North Africa,<0.001,0.845,0.467,–,–,–,–
+English,Politics,Europe & Central Asia,<0.001,<0.001,<0.001,<0.001,–,–,–
+English,Politics,Sub-Saharan Africa,0.001,<0.001,<0.001,<0.001,<0.001,–,–
+English,Politics,North America,<0.001,<0.001,<0.001,0.004,<0.001,<0.001,–
+English,Sports,South Asia,–,–,–,–,–,–,–
+English,Sports,East Asia & Pacific,<0.001,–,–,–,–,–,–
+English,Sports,Latin America & Caribbean,<0.001,<0.001,–,–,–,–,–
+English,Sports,Middle East & North Africa,<0.001,0.637,<0.001,–,–,–,–
+English,Sports,Europe & Central Asia,<0.001,<0.001,<0.001,<0.001,–,–,–
+English,Sports,Sub-Saharan Africa,<0.001,0.014,<0.001,0.003,<0.001,–,–
+English,Sports,North America,<0.001,<0.001,<0.001,0.001,<0.001,<0.001,–
+Spanish,Culture,South Asia,–,–,–,–,–,–,–
+Spanish,Culture,East Asia & Pacific,,–,–,–,–,–,–
+Spanish,Culture,Latin America & Caribbean,,0.609,–,–,–,–,–
+Spanish,Culture,Middle East & North Africa,,,,–,–,–,–
+Spanish,Culture,Europe & Central Asia,,0.036,<0.001,,–,–,–
+Spanish,Culture,Sub-Saharan Africa,,0.747,0.777,,0.152,–,–
+Spanish,Culture,North America,,0.522,0.008,,<0.001,0.84,–
+Spanish,Disaster,South Asia,–,–,–,–,–,–,–
+Spanish,Disaster,East Asia & Pacific,0.88,–,–,–,–,–,–
+Spanish,Disaster,Latin America & Caribbean,<0.001,<0.001,–,–,–,–,–
+Spanish,Disaster,Middle East & North Africa,0.123,0.005,0.014,–,–,–,–
+Spanish,Disaster,Europe & Central Asia,0.241,0.605,<0.001,<0.001,–,–,–
+Spanish,Disaster,Sub-Saharan Africa,0.303,0.159,0.189,0.97,0.009,–,–
+Spanish,Disaster,North America,0.324,0.881,<0.001,<0.001,0.948,0.022,–
+Spanish,Politics,South Asia,–,–,–,–,–,–,–
+Spanish,Politics,East Asia & Pacific,0.021,–,–,–,–,–,–
+Spanish,Politics,Latin America & Caribbean,0.21,<0.001,–,–,–,–,–
+Spanish,Politics,Middle East & North Africa,0.016,0.196,<0.001,–,–,–,–
+Spanish,Politics,Europe & Central Asia,<0.001,<0.001,<0.001,<0.001,–,–,–
+Spanish,Politics,Sub-Saharan Africa,0.891,0.008,0.053,0.036,<0.001,–,–
+Spanish,Politics,North America,<0.001,0.108,<0.001,<0.001,<0.001,<0.001,–
+Spanish,Sports,South Asia,–,–,–,–,–,–,–
+Spanish,Sports,East Asia & Pacific,0.001,–,–,–,–,–,–
+Spanish,Sports,Latin America & Caribbean,0.149,<0.001,–,–,–,–,–
+Spanish,Sports,Middle East & North Africa,0.014,0.075,<0.001,–,–,–,–
+Spanish,Sports,Europe & Central Asia,0.001,<0.001,<0.001,<0.001,–,–,–
+Spanish,Sports,Sub-Saharan Africa,0.041,0.011,<0.001,0.019,<0.001,–,–
+Spanish,Sports,North America,<0.001,0.686,<0.001,0.013,<0.001,<0.001,–
+Italian,Culture,South Asia,–,–,–,–,–,–,–
+Italian,Culture,East Asia & Pacific,,–,–,–,–,–,–
+Italian,Culture,Latin America & Caribbean,,,–,–,–,–,–
+Italian,Culture,Middle East & North Africa,,,,–,–,–,–
+Italian,Culture,Europe & Central Asia,,0.331,,,–,–,–
+Italian,Culture,Sub-Saharan Africa,,,,,,–,–
+Italian,Culture,North America,,0.243,,,<0.001,,–
+Italian,Disaster,South Asia,–,–,–,–,–,–,–
+Italian,Disaster,East Asia & Pacific,0.129,–,–,–,–,–,–
+Italian,Disaster,Latin America & Caribbean,0.001,0.121,–,–,–,–,–
+Italian,Disaster,Middle East & North Africa,0.539,0.13,0.686,–,–,–,–
+Italian,Disaster,Europe & Central Asia,<0.001,0.781,0.002,0.008,–,–,–
+Italian,Disaster,Sub-Saharan Africa,0.32,0.054,0.002,0.313,<0.001,–,–
+Italian,Disaster,North America,0.001,0.69,0.053,0.048,0.594,0.002,–
+Italian,Politics,South Asia,–,–,–,–,–,–,–
+Italian,Politics,East Asia & Pacific,0.189,–,–,–,–,–,–
+Italian,Politics,Latin America & Caribbean,0.189,0.008,–,–,–,–,–
+Italian,Politics,Middle East & North Africa,0.447,0.146,0.547,–,–,–,–
+Italian,Politics,Europe & Central Asia,0.156,0.438,0.006,0.095,–,–,–
+Italian,Politics,Sub-Saharan Africa,0.892,0.082,0.599,0.422,0.013,–,–
+Italian,Politics,North America,0.461,0.287,0.828,0.821,0.022,0.726,–
+Italian,Sports,South Asia,–,–,–,–,–,–,–
+Italian,Sports,East Asia & Pacific,0.747,–,–,–,–,–,–
+Italian,Sports,Latin America & Caribbean,0.168,<0.001,–,–,–,–,–
+Italian,Sports,Middle East & North Africa,0.449,0.467,<0.001,–,–,–,–
+Italian,Sports,Europe & Central Asia,0.214,<0.001,<0.001,<0.001,–,–,–
+Italian,Sports,Sub-Saharan Africa,1,0.93,0.1,1,0.151,–,–
+Italian,Sports,North America,0.97,0.06,0.864,0.892,<0.001,0.27,–
+,,,,,,,,,
+Bold = Significant with p < 0.05,,,,,,,,,
+Empty = No data in either comparison group,,,,,,,,,
+Dash = Other half of matrix,,,,,,,,,
