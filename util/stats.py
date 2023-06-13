@@ -126,7 +126,7 @@ def three_way_mwu(df, y_col, group_cols=['code', 'cat'], comp_col='gni_region', 
     # Creating a DataFrame for each matrix and storing them in a list
     output_dfs = []
     for key, matrix in result_matrices.items():
-        group_values = list(key)
+        group_values = list(key) if not isinstance(key, str) else [key]
         matrix_df = pd.DataFrame(matrix, index=all_regions, columns=all_regions)
         matrix_df.index.name = comp_col
         matrix_df.columns.name = comp_col
