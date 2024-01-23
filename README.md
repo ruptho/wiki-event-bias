@@ -1,6 +1,6 @@
 # Poor attention: The wealth and regional gaps in event attention and coverage on Wikipedia
 
-Repository for "Poor attention: The wealth and regional gaps in event attention and coverage on Wikipedia" as currently under review.
+Repository for "Poor attention: The wealth and regional gaps in event attention and coverage on Wikipedia" as published in [PONE](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0289325) .
 
 This repository contains the preprocessed data files as well as code for the main experiments conducted during the creation of the paper.
 
